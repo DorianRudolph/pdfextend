@@ -26,6 +26,11 @@ fn local_pdfium_path() -> String {
     path.to_str().unwrap().to_string()
 }
 
+#[derive(Copy, Clone, Debug, PartialEq)]
+enum LineType {
+    None, Lines, Grid
+}
+
 fn extend_pdf(input: &str, output: &str) -> Result<(), PdfiumError> {
     let pdfium = Pdfium::new(
         Pdfium::bind_to_library(local_pdfium_path())
@@ -43,21 +48,22 @@ fn extend_pdf(input: &str, output: &str) -> Result<(), PdfiumError> {
         let boundaries = page.boundaries_mut();
 
         // use crop box if available, otherwise use media box
-        let mut rect = boundaries.crop().or_else(|_| boundaries.media())?.bounds;
+        let rect_old = boundaries.crop().or_else(|_| boundaries.media())?.bounds;
+        let mut rect_new = rect_old;
 
         if i % 2 == 0 {
-            rect.left -= PdfPoints::from_mm(50.);
+            rect_new.left -= PdfPoints::from_mm(50.);
         } else {
-            rect.right += PdfPoints::from_mm(50.);
+            rect_new.right += PdfPoints::from_mm(50.);
         }
 
         // Not sure if we need to set all boxes
         // https://opensource.adobe.com/dc-acrobat-sdk-docs/standards/pdfstandards/pdf/PDF32000_2008.pdf
-        boundaries.set_crop(rect)?;
-        boundaries.set_media(rect)?;
-        boundaries.set_bleed(rect)?;
-        boundaries.set_art(rect)?;
-        boundaries.set_trim(rect)?;
+        boundaries.set_crop(rect_new)?;
+        boundaries.set_media(rect_new)?;
+        boundaries.set_bleed(rect_new)?;
+        boundaries.set_art(rect_new)?;
+        boundaries.set_trim(rect_new)?;
     }
     pb.finish_and_clear();
     doc.save_to_file(output)
