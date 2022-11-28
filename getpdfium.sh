@@ -6,4 +6,4 @@ mkdir -p target/debug
 mkdir -p target/release
 
 curl -L "$URL" | tar zxf - -C target/debug --strip-components=1 lib/libpdfium.so
-ln -s target/{debug,release}/libpdfium.so
+ln -s {../debug,target/release}/libpdfium.so
