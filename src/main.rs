@@ -36,15 +36,28 @@ fn extend_pdf(input: &str, output: &str) -> Result<(), PdfiumError> {
     let page_count = doc.pages().len() as u64;
     let pb = ProgressBar::new(page_count);
 
-    for (_i, mut page) in doc.pages().iter().enumerate() {
+    for (i, mut page) in doc.pages().iter().enumerate() {
         pb.inc(1);
+
         page.set_content_regeneration_strategy(PdfPageContentRegenerationStrategy::AutomaticOnDrop);
         let boundaries = page.boundaries_mut();
-        let mut rect = boundaries.crop().or_else(|_| boundaries.media())?.bounds;
-        rect.left -= PdfPoints::from_mm(50.);
 
+        // use crop box if available, otherwise use media box
+        let mut rect = boundaries.crop().or_else(|_| boundaries.media())?.bounds;
+
+        if i % 2 == 0 {
+            rect.left -= PdfPoints::from_mm(50.);
+        } else {
+            rect.right += PdfPoints::from_mm(50.);
+        }
+
+        // Not sure if we need to set all boxes
+        // https://opensource.adobe.com/dc-acrobat-sdk-docs/standards/pdfstandards/pdf/PDF32000_2008.pdf
         boundaries.set_crop(rect)?;
         boundaries.set_media(rect)?;
+        boundaries.set_bleed(rect)?;
+        boundaries.set_art(rect)?;
+        boundaries.set_trim(rect)?;
     }
     pb.finish_and_clear();
     doc.save_to_file(output)
