@@ -28,9 +28,8 @@ fn local_pdfium_path() -> String {
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 enum LineType {
-    None,
     Lines,
-    Grid,
+    Squares,
 }
 
 fn make_grid<'a>(
@@ -66,6 +65,20 @@ fn make_grid<'a>(
             draw_line(rect_inner.right, y, rect_outer.right, y)?;
         }
         y -= spacing;
+    }
+
+    if line_type == LineType::Squares {
+        let mut x = rect_outer.left + spacing;
+        while x < rect_outer.right {
+            if x < rect_inner.left || x > rect_inner.right {
+                draw_line(x, rect_outer.top, x, rect_outer.bottom)?;
+            } else if rect_outer.top > rect_inner.top {
+                draw_line(x, rect_outer.top, x, rect_inner.top)?;
+            } else if rect_outer.bottom < rect_inner.bottom {
+                draw_line(x, rect_outer.bottom, x, rect_inner.bottom)?;
+            }
+            x += spacing;
+        }
     }
 
     Ok(path)
@@ -105,9 +118,17 @@ fn extend_pdf(input: &str, output: &str) -> Result<(), PdfiumError> {
         boundaries.set_art(rect_new)?;
         boundaries.set_trim(rect_new)?;
 
-        let grid = make_grid(&doc, &rect_old, &rect_new, PdfPoints::from_mm(5.), PdfPoints::from_mm(0.2), LineType::Lines)?;
+        let grid = make_grid(
+            &doc,
+            &rect_old,
+            &rect_new,
+            PdfPoints::from_mm(5.),
+            PdfPoints::from_mm(0.2),
+            LineType::Squares,
+        )?;
         page.objects_mut().add_path_object(grid)?;
-    }
+
+   }
     pb.finish_and_clear();
     doc.save_to_file(output)
 }
