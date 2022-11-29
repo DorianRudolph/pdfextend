@@ -138,7 +138,7 @@ fn local_pdfium_path() -> String {
 
 fn make_grid<'a>(
     doc: &PdfDocument<'a>,
-    rect_inner: &PdfRect,
+    rect_inner: Option<&PdfRect>,
     rect_outer: &PdfRect,
     params: &ExtendParams,
 ) -> Result<PdfPagePathObject<'a>, PdfiumError> {
@@ -163,15 +163,16 @@ fn make_grid<'a>(
     if let Some(grid) = params.grid {
         let mut y = rect_outer.top - spacing;
         while y > rect_outer.bottom {
-            if y > rect_inner.top || y < rect_inner.bottom {
-                draw_line(rect_outer.left, y, rect_outer.right, y)?;
-            } else {
-                if rect_outer.left < rect_inner.left {
-                    draw_line(rect_outer.left, y, rect_inner.left, y)?;
+            match rect_inner {
+                Some(rect_inner) if y <= rect_inner.top && y >= rect_inner.bottom => {
+                    if rect_outer.left < rect_inner.left {
+                        draw_line(rect_outer.left, y, rect_inner.left, y)?;
+                    }
+                    if rect_outer.right > rect_inner.right {
+                        draw_line(rect_inner.right, y, rect_outer.right, y)?;
+                    }
                 }
-                if rect_outer.right > rect_inner.right {
-                    draw_line(rect_inner.right, y, rect_outer.right, y)?;
-                }
+                _ => draw_line(rect_outer.left, y, rect_outer.right, y)?,
             }
             y -= spacing;
         }
@@ -179,15 +180,16 @@ fn make_grid<'a>(
         if grid == LineType::Squares {
             let mut x = rect_outer.left + spacing;
             while x < rect_outer.right {
-                if x < rect_inner.left || x > rect_inner.right {
-                    draw_line(x, rect_outer.top, x, rect_outer.bottom)?;
-                } else {
-                    if rect_outer.top > rect_inner.top {
-                        draw_line(x, rect_outer.top, x, rect_inner.top)?;
+                match rect_inner {
+                    Some(rect_inner) if x >= rect_inner.left && x <= rect_inner.right => {
+                        if rect_outer.top > rect_inner.top {
+                            draw_line(x, rect_outer.top, x, rect_inner.top)?;
+                        }
+                        if rect_outer.bottom < rect_inner.bottom {
+                            draw_line(x, rect_outer.bottom, x, rect_inner.bottom)?;
+                        }
                     }
-                    if rect_outer.bottom < rect_inner.bottom {
-                        draw_line(x, rect_outer.bottom, x, rect_inner.bottom)?;
-                    }
+                    _ => draw_line(x, rect_outer.top, x, rect_outer.bottom)?,
                 }
                 x += spacing;
             }
@@ -204,8 +206,8 @@ fn extend_pdf(input: &str, output: &str, params: &ExtendParams) -> Result<(), Pd
     );
     let doc = pdfium.load_pdf_from_file(input, None)?;
 
-    let page_count = doc.pages().len() as u64;
-    let pb = ProgressBar::new(page_count);
+    let page_count = doc.pages().len();
+    let pb = ProgressBar::new(page_count as u64);
 
     for (i, mut page) in doc.pages().iter().enumerate() {
         pb.inc(1);
@@ -235,9 +237,20 @@ fn extend_pdf(input: &str, output: &str, params: &ExtendParams) -> Result<(), Pd
         boundaries.set_art(rect_new)?;
         boundaries.set_trim(rect_new)?;
 
-        let grid = make_grid(&doc, &rect_old, &rect_new, params)?;
+        let grid = make_grid(&doc, Some(&rect_old), &rect_new, params)?;
         page.objects_mut().add_path_object(grid)?;
     }
+
+    let bounds = doc
+        .pages()
+        .get(page_count - 1)?
+        .boundaries()
+        .bounding()?
+        .bounds;
+    let new_page = doc
+        .pages()
+        .create_page_at_end(PdfPagePaperSize::Custom(bounds.width(), bounds.height()))?;
+
     pb.finish_and_clear();
     doc.save_to_file(output)
 }
