@@ -89,13 +89,24 @@ struct Args {
     color: Color,
 }
 
+struct ExtendParams {
+    extend: PdfRect,
+    spacing: PdfPoints,
+    line_width: PdfPoints,
+    grid: Option<LineType>,
+    color: PdfColor,
+    extra_page: bool,
+    mirror: bool,
+}
+
 fn color_parser(s: &str) -> Result<Color, String> {
     let s = s.trim_start_matches("#");
     let l = s.len();
     if !(l == 1 || l == 2 || l == 3 || l == 6) {
         return Err("Invalid color".to_string());
     }
-    let x = u32::from_str_radix(s, 16).map_err(|_| format!("`{}` is not a valid hexadecimal number", s))?;
+    let x = u32::from_str_radix(s, 16)
+        .map_err(|_| format!("`{}` is not a valid hexadecimal number", s))?;
     let (r, g, b) = match l {
         1 => (x << 4, x << 4, x << 4),
         2 => (x, x, x),
@@ -129,15 +140,16 @@ fn make_grid<'a>(
     doc: &PdfDocument<'a>,
     rect_inner: &PdfRect,
     rect_outer: &PdfRect,
-    spacing: PdfPoints,
-    width: PdfPoints,
-    line_type: LineType,
+    params: &ExtendParams,
 ) -> Result<PdfPagePathObject<'a>, PdfiumError> {
+    let width = params.line_width;
+    let spacing = params.spacing;
+
     let mut path = PdfPagePathObject::new(
         doc,
         rect_outer.left,
         rect_outer.top,
-        Some(PdfColor::new(200, 200, 200, 255)),
+        Some(params.color),
         Some(width),
         None,
     )?;
@@ -148,36 +160,38 @@ fn make_grid<'a>(
         path.line_to(x2, y2)
     };
 
-    let mut y = rect_outer.top - spacing;
-    while y > rect_outer.bottom {
-        if y > rect_inner.top || y < rect_inner.bottom {
-            draw_line(rect_outer.left, y, rect_outer.right, y)?;
-        } else if rect_outer.left < rect_inner.left {
-            draw_line(rect_outer.left, y, rect_inner.left, y)?;
-        } else if rect_outer.right > rect_inner.right {
-            draw_line(rect_inner.right, y, rect_outer.right, y)?;
-        }
-        y -= spacing;
-    }
-
-    if line_type == LineType::Squares {
-        let mut x = rect_outer.left + spacing;
-        while x < rect_outer.right {
-            if x < rect_inner.left || x > rect_inner.right {
-                draw_line(x, rect_outer.top, x, rect_outer.bottom)?;
-            } else if rect_outer.top > rect_inner.top {
-                draw_line(x, rect_outer.top, x, rect_inner.top)?;
-            } else if rect_outer.bottom < rect_inner.bottom {
-                draw_line(x, rect_outer.bottom, x, rect_inner.bottom)?;
+    if let Some(grid) = params.grid {
+        let mut y = rect_outer.top - spacing;
+        while y > rect_outer.bottom {
+            if y > rect_inner.top || y < rect_inner.bottom {
+                draw_line(rect_outer.left, y, rect_outer.right, y)?;
+            } else if rect_outer.left < rect_inner.left {
+                draw_line(rect_outer.left, y, rect_inner.left, y)?;
+            } else if rect_outer.right > rect_inner.right {
+                draw_line(rect_inner.right, y, rect_outer.right, y)?;
             }
-            x += spacing;
+            y -= spacing;
+        }
+
+        if grid == LineType::Squares {
+            let mut x = rect_outer.left + spacing;
+            while x < rect_outer.right {
+                if x < rect_inner.left || x > rect_inner.right {
+                    draw_line(x, rect_outer.top, x, rect_outer.bottom)?;
+                } else if rect_outer.top > rect_inner.top {
+                    draw_line(x, rect_outer.top, x, rect_inner.top)?;
+                } else if rect_outer.bottom < rect_inner.bottom {
+                    draw_line(x, rect_outer.bottom, x, rect_inner.bottom)?;
+                }
+                x += spacing;
+            }
         }
     }
 
     Ok(path)
 }
 
-fn extend_pdf(input: &str, output: &str) -> Result<(), PdfiumError> {
+fn extend_pdf(input: &str, output: &str, params: &ExtendParams) -> Result<(), PdfiumError> {
     let pdfium = Pdfium::new(
         Pdfium::bind_to_library(local_pdfium_path())
             .or_else(|_| Pdfium::bind_to_system_library())?,
@@ -198,10 +212,14 @@ fn extend_pdf(input: &str, output: &str) -> Result<(), PdfiumError> {
         let mut rect_new = rect_old;
 
         if i % 2 == 0 {
-            rect_new.left -= PdfPoints::from_mm(50.);
+            rect_new.left -= params.extend.left;
+            rect_new.right += params.extend.right;
         } else {
-            rect_new.right += PdfPoints::from_mm(50.);
+            rect_new.left -= params.extend.right;
+            rect_new.right += params.extend.left;
         }
+        rect_new.top += params.extend.top;
+        rect_new.bottom -= params.extend.bottom;
 
         // Not sure if we need to set all boxes
         // https://opensource.adobe.com/dc-acrobat-sdk-docs/standards/pdfstandards/pdf/PDF32000_2008.pdf
@@ -211,14 +229,7 @@ fn extend_pdf(input: &str, output: &str) -> Result<(), PdfiumError> {
         boundaries.set_art(rect_new)?;
         boundaries.set_trim(rect_new)?;
 
-        let grid = make_grid(
-            &doc,
-            &rect_old,
-            &rect_new,
-            PdfPoints::from_mm(5.),
-            PdfPoints::from_mm(0.2),
-            LineType::Squares,
-        )?;
+        let grid = make_grid(&doc, &rect_old, &rect_new, params)?;
         page.objects_mut().add_path_object(grid)?;
     }
     pb.finish_and_clear();
@@ -227,10 +238,31 @@ fn extend_pdf(input: &str, output: &str) -> Result<(), PdfiumError> {
 
 fn main() {
     let args = Args::parse();
+    let to_points = |x| match args.unit {
+        Unit::Mm => PdfPoints::from_mm(x),
+        Unit::Cm => PdfPoints::from_cm(x),
+        Unit::Inches => PdfPoints::from_inches(x),
+        Unit::Points => PdfPoints::new(x),
+    };
 
-    println!(
-        "Input: {}\nOutput: {}\nExtend: {} {} {} {} {}",
-        args.input, args.output, args.left, args.top, args.right, args.bottom, args.color
-    );
-    // extend_pdf(&args.input, &args.output).unwrap()
+    let params = ExtendParams {
+        extend: PdfRect::new(
+            to_points(args.bottom),
+            to_points(args.left),
+            to_points(args.top),
+            to_points(args.right),
+        ),
+        spacing: to_points(args.spacing),
+        line_width: to_points(args.line_width),
+        grid: args.grid,
+        color: args.color.0,
+        extra_page: args.extra_page,
+        mirror: args.mirror,
+    };
+
+    // println!(
+    //     "Input: {}\nOutput: {}\nExtend: {} {} {} {} {}",
+    //     args.input, args.output, args.left, args.top, args.right, args.bottom, args.color
+    // );
+    extend_pdf(&args.input, &args.output, &params).unwrap()
 }
