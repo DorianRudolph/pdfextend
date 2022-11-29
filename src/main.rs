@@ -241,15 +241,20 @@ fn extend_pdf(input: &str, output: &str, params: &ExtendParams) -> Result<(), Pd
         page.objects_mut().add_path_object(grid)?;
     }
 
-    let bounds = doc
-        .pages()
-        .get(page_count - 1)?
-        .boundaries()
-        .bounding()?
-        .bounds;
-    let new_page = doc
-        .pages()
-        .create_page_at_end(PdfPagePaperSize::Custom(bounds.width(), bounds.height()))?;
+    if params.extra_page {
+        let bounds = doc
+            .pages()
+            .get(page_count - 1)?
+            .boundaries()
+            .bounding()?
+            .bounds;
+        let mut new_page = doc
+            .pages()
+            .create_page_at_end(PdfPagePaperSize::Custom(bounds.width(), bounds.height()))?;
+        let new_bounds = new_page.boundaries().bounding()?.bounds;
+        let grid = make_grid(&doc, None, &new_bounds, params)?;
+        new_page.objects_mut().add_path_object(grid)?;
+    }
 
     pb.finish_and_clear();
     doc.save_to_file(output)
