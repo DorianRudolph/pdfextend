@@ -165,10 +165,13 @@ fn make_grid<'a>(
         while y > rect_outer.bottom {
             if y > rect_inner.top || y < rect_inner.bottom {
                 draw_line(rect_outer.left, y, rect_outer.right, y)?;
-            } else if rect_outer.left < rect_inner.left {
-                draw_line(rect_outer.left, y, rect_inner.left, y)?;
-            } else if rect_outer.right > rect_inner.right {
-                draw_line(rect_inner.right, y, rect_outer.right, y)?;
+            } else {
+                if rect_outer.left < rect_inner.left {
+                    draw_line(rect_outer.left, y, rect_inner.left, y)?;
+                }
+                if rect_outer.right > rect_inner.right {
+                    draw_line(rect_inner.right, y, rect_outer.right, y)?;
+                }
             }
             y -= spacing;
         }
@@ -178,10 +181,13 @@ fn make_grid<'a>(
             while x < rect_outer.right {
                 if x < rect_inner.left || x > rect_inner.right {
                     draw_line(x, rect_outer.top, x, rect_outer.bottom)?;
-                } else if rect_outer.top > rect_inner.top {
-                    draw_line(x, rect_outer.top, x, rect_inner.top)?;
-                } else if rect_outer.bottom < rect_inner.bottom {
-                    draw_line(x, rect_outer.bottom, x, rect_inner.bottom)?;
+                } else {
+                    if rect_outer.top > rect_inner.top {
+                        draw_line(x, rect_outer.top, x, rect_inner.top)?;
+                    }
+                    if rect_outer.bottom < rect_inner.bottom {
+                        draw_line(x, rect_outer.bottom, x, rect_inner.bottom)?;
+                    }
                 }
                 x += spacing;
             }
@@ -208,15 +214,15 @@ fn extend_pdf(input: &str, output: &str, params: &ExtendParams) -> Result<(), Pd
         let boundaries = page.boundaries_mut();
 
         // use crop box if available, otherwise use media box
-        let rect_old = boundaries.crop().or_else(|_| boundaries.media())?.bounds;
+        let rect_old = boundaries.bounding()?.bounds;
         let mut rect_new = rect_old;
 
-        if i % 2 == 0 {
-            rect_new.left -= params.extend.left;
-            rect_new.right += params.extend.right;
-        } else {
+        if params.mirror && i % 2 == 1 {
             rect_new.left -= params.extend.right;
             rect_new.right += params.extend.left;
+        } else {
+            rect_new.left -= params.extend.left;
+            rect_new.right += params.extend.right;
         }
         rect_new.top += params.extend.top;
         rect_new.bottom -= params.extend.bottom;
