@@ -1,10 +1,40 @@
-use clap::Parser;
+use clap::{Parser, ValueEnum};
 use indicatif::ProgressBar;
 use pdfium_render::prelude::*;
 use std::{
-    env,
+    env, fmt,
     path::{Path, PathBuf},
 };
+
+#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum, Debug)]
+enum Unit {
+    Mm,
+    Cm,
+    Inches,
+    Points,
+}
+
+#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum, Debug)]
+enum LineType {
+    Lines,
+    Squares,
+}
+
+#[derive(Copy, Clone, Debug)]
+struct Color(PdfColor);
+
+impl fmt::Display for Color {
+    // This trait requires `fmt` with this exact signature.
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "#{:02X}{:02X}{:02X}",
+            self.0.red(),
+            self.0.green(),
+            self.0.blue()
+        )
+    }
+}
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -14,6 +44,75 @@ struct Args {
 
     /// Path to output PDF file
     output: String,
+
+    /// Extend document by <LEFT> to the left
+    #[arg(short, long, default_value_t = 0., value_parser = float_parser)]
+    left: f32,
+
+    /// Extend document by <RIGHT> to the right
+    #[arg(short, long, default_value_t = 0., value_parser = float_parser)]
+    right: f32,
+
+    /// Extend document by <TOP> to the top
+    #[arg(short, long, default_value_t = 0., value_parser = float_parser)]
+    top: f32,
+
+    /// Extend document by <BOTTOM> to the bottom
+    #[arg(short, long, default_value_t = 0., value_parser = float_parser)]
+    bottom: f32,
+
+    /// Spacing between grid lines
+    #[arg(short, long, value_parser = float_parser)]
+    spacing: f32,
+
+    /// Line width
+    #[arg(short = 'w', long, value_parser = float_parser)]
+    line_width: f32,
+
+    /// Unit of the numeric parameters (points = inches/72)
+    #[arg(short, long, default_value_t = Unit::Mm, value_enum)]
+    unit: Unit,
+
+    /// Add grid to the extended margins
+    #[arg(short, long, value_enum)]
+    grid: Option<LineType>,
+
+    /// Append an additional page with grid to the document
+    #[arg(short, long, default_value_t = false)]
+    extra_page: bool,
+
+    /// Swap <LEFT> and <RIGHT> for even pages
+    #[arg(short, long, default_value_t = false)]
+    mirror: bool,
+
+    #[arg(short, long, default_value_t = Color(PdfColor::new(200, 200, 200, 255)), value_parser=color_parser)]
+    color: Color,
+}
+
+fn color_parser(s: &str) -> Result<Color, String> {
+    let s = s.trim_start_matches("#");
+    let l = s.len();
+    if !(l == 1 || l == 2 || l == 3 || l == 6) {
+        return Err("Invalid color".to_string());
+    }
+    let x = u32::from_str_radix(s, 16).map_err(|_| format!("`{}` is not a valid hexadecimal number", s))?;
+    let (r, g, b) = match l {
+        1 => (x << 4, x << 4, x << 4),
+        2 => (x, x, x),
+        3 => ((x & 0xf00) >> 4, (x & 0xf0), (x & 0xf) << 4),
+        _ => ((x & 0xff0000) >> 16, (x & 0xff00) >> 8, x & 0xff),
+    };
+    Ok(Color(PdfColor::new(r as u8, g as u8, b as u8, 255)))
+}
+
+fn float_parser(s: &str) -> Result<f32, String> {
+    let num: f32 = s.parse().map_err(|_| "Not a valid floating point number")?;
+    if num < 0. {
+        return Err("No negative numbers allowed".to_string());
+    } else if num > 1e6 {
+        return Err("Number too big".to_string());
+    }
+    Ok(num)
 }
 
 fn local_pdfium_path() -> String {
@@ -24,12 +123,6 @@ fn local_pdfium_path() -> String {
     let pdfium_name = Pdfium::pdfium_platform_library_name();
     path.push(pdfium_name);
     path.to_str().unwrap().to_string()
-}
-
-#[derive(Copy, Clone, Debug, PartialEq)]
-enum LineType {
-    Lines,
-    Squares,
 }
 
 fn make_grid<'a>(
@@ -127,8 +220,7 @@ fn extend_pdf(input: &str, output: &str) -> Result<(), PdfiumError> {
             LineType::Squares,
         )?;
         page.objects_mut().add_path_object(grid)?;
-
-   }
+    }
     pb.finish_and_clear();
     doc.save_to_file(output)
 }
@@ -136,6 +228,9 @@ fn extend_pdf(input: &str, output: &str) -> Result<(), PdfiumError> {
 fn main() {
     let args = Args::parse();
 
-    println!("Input: {}\nOutput: {}", args.input, args.output);
-    extend_pdf(&args.input, &args.output).unwrap()
+    println!(
+        "Input: {}\nOutput: {}\nExtend: {} {} {} {} {}",
+        args.input, args.output, args.left, args.top, args.right, args.bottom, args.color
+    );
+    // extend_pdf(&args.input, &args.output).unwrap()
 }
