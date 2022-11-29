@@ -28,7 +28,47 @@ fn local_pdfium_path() -> String {
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 enum LineType {
-    None, Lines, Grid
+    None,
+    Lines,
+    Grid,
+}
+
+fn make_grid<'a>(
+    doc: &PdfDocument<'a>,
+    rect_inner: &PdfRect,
+    rect_outer: &PdfRect,
+    spacing: PdfPoints,
+    width: PdfPoints,
+    line_type: LineType,
+) -> Result<PdfPagePathObject<'a>, PdfiumError> {
+    let mut path = PdfPagePathObject::new(
+        doc,
+        rect_outer.left,
+        rect_outer.top,
+        Some(PdfColor::new(200, 200, 200, 255)),
+        Some(width),
+        None,
+    )?;
+    path.set_line_cap(PdfPageObjectLineCap::Butt)?;
+
+    let mut draw_line = |x1, y1, x2, y2| {
+        path.move_to(x1, y1)?;
+        path.line_to(x2, y2)
+    };
+
+    let mut y = rect_outer.top - spacing;
+    while y > rect_outer.bottom {
+        if y > rect_inner.top || y < rect_inner.bottom {
+            draw_line(rect_outer.left, y, rect_outer.right, y)?;
+        } else if rect_outer.left < rect_inner.left {
+            draw_line(rect_outer.left, y, rect_inner.left, y)?;
+        } else if rect_outer.right > rect_inner.right {
+            draw_line(rect_inner.right, y, rect_outer.right, y)?;
+        }
+        y -= spacing;
+    }
+
+    Ok(path)
 }
 
 fn extend_pdf(input: &str, output: &str) -> Result<(), PdfiumError> {
@@ -64,6 +104,9 @@ fn extend_pdf(input: &str, output: &str) -> Result<(), PdfiumError> {
         boundaries.set_bleed(rect_new)?;
         boundaries.set_art(rect_new)?;
         boundaries.set_trim(rect_new)?;
+
+        let grid = make_grid(&doc, &rect_old, &rect_new, PdfPoints::from_mm(5.), PdfPoints::from_mm(0.2), LineType::Lines)?;
+        page.objects_mut().add_path_object(grid)?;
     }
     pb.finish_and_clear();
     doc.save_to_file(output)
