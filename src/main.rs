@@ -85,7 +85,8 @@ struct Args {
     #[arg(short, long, default_value_t = false)]
     mirror: bool,
 
-    #[arg(short, long, default_value_t = Color(PdfColor::new(200, 200, 200, 255)), value_parser=color_parser)]
+    /// Color of the grid lines (format: #A0B0C0 or #ABC for RGB, #A0 or #A for grayscale, # is optional)
+    #[arg(short, long, default_value_t = Color(PdfColor::new(0xf0, 0xf0, 0xf0, 0xff)), value_parser=color_parser)]
     color: Color,
 }
 
