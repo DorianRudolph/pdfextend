@@ -24,7 +24,6 @@ enum LineType {
 struct Color(PdfColor);
 
 impl fmt::Display for Color {
-    // This trait requires `fmt` with this exact signature.
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
@@ -216,7 +215,6 @@ fn extend_pdf(input: &str, output: &str, params: &ExtendParams) -> Result<(), Pd
         page.set_content_regeneration_strategy(PdfPageContentRegenerationStrategy::AutomaticOnDrop);
         let boundaries = page.boundaries_mut();
 
-        // use crop box if available, otherwise use media box
         let rect_old = boundaries.bounding()?.bounds;
         let mut rect_new = rect_old;
 
