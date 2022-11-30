@@ -283,9 +283,5 @@ fn main() {
         mirror: args.mirror,
     };
 
-    // println!(
-    //     "Input: {}\nOutput: {}\nExtend: {} {} {} {} {}",
-    //     args.input, args.output, args.left, args.top, args.right, args.bottom, args.color
-    // );
     extend_pdf(&args.input, &args.output, &params).unwrap()
 }
