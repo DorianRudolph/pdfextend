@@ -60,13 +60,13 @@ struct Args {
     #[arg(short, long, default_value_t = 0., value_parser = float_parser)]
     bottom: f32,
 
-    /// Spacing between grid lines
+    /// Spacing between grid lines [default: 5 mm]
     #[arg(short, long, value_parser = float_parser)]
-    spacing: f32,
+    spacing: Option<f32>,
 
-    /// Line width
+    /// Line width [default: 0.1 mm]
     #[arg(short = 'w', long, value_parser = float_parser)]
-    line_width: f32,
+    line_width: Option<f32>,
 
     /// Unit of the numeric parameters (points = inches/72)
     #[arg(short, long, default_value_t = Unit::Mm, value_enum)]
@@ -275,8 +275,8 @@ fn main() {
             to_points(args.top),
             to_points(args.right),
         ),
-        spacing: to_points(args.spacing),
-        line_width: to_points(args.line_width),
+        spacing: args.spacing.map(to_points).unwrap_or(PdfPoints::from_mm(5.)),
+        line_width: args.line_width.map(to_points).unwrap_or(PdfPoints::from_mm(0.1)),
         grid: args.grid,
         color: args.color.0,
         extra_page: args.extra_page,
