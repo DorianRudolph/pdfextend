@@ -1,5 +1,5 @@
 use clap::{Parser, ValueEnum};
-use indicatif::ProgressBar;
+use indicatif::{ProgressBar, ProgressStyle};
 use pdfium_render::prelude::*;
 use std::{
     env, fmt,
@@ -65,7 +65,7 @@ struct Args {
     #[arg(short, long, value_parser = float_parser)]
     spacing: Option<f32>,
 
-    /// Line width [default: 0.1 mm]
+    /// Line width [default: 0.1 mm for lines, 0.7mm for dots]
     #[arg(short = 'w', long, value_parser = float_parser)]
     line_width: Option<f32>,
 
@@ -290,8 +290,11 @@ fn extend_pdf(input: &str, output: &str, params: &ExtendParams) -> Result<(), Pd
         new_page.objects_mut().add_path_object(grid)?;
     }
 
+    pb.set_style(ProgressStyle::with_template("{wide_msg}").unwrap());
+    pb.set_message("Saving...");
+    doc.save_to_file(output)?;
     pb.finish_and_clear();
-    doc.save_to_file(output)
+    Ok(())
 }
 
 fn main() {
@@ -310,8 +313,17 @@ fn main() {
             to_points(args.top),
             to_points(args.right),
         ),
-        spacing: args.spacing.map(to_points).unwrap_or(PdfPoints::from_mm(5.)),
-        line_width: args.line_width.map(to_points).unwrap_or(PdfPoints::from_mm(0.1)),
+        spacing: args
+            .spacing
+            .map(to_points)
+            .unwrap_or(PdfPoints::from_mm(5.)),
+        line_width: args.line_width.map(to_points).unwrap_or(PdfPoints::from_mm(
+            if let Some(LineType::Dots) = args.grid {
+                0.7
+            } else {
+                0.1
+            },
+        )),
         grid: args.grid,
         color: args.color.0,
         extra_page: args.extra_page,
