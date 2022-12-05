@@ -11,3 +11,6 @@ authors = ["Dorian Rudolph <mail@dorianrudolph.com>"]
 clap = { version = "4.0.27", features = ["derive"] }
 indicatif = "0.17.2"
 pdfium-render = "0.7.11"
+
+[profile.release]
+lto = true

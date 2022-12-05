@@ -25,7 +25,6 @@ enum LineType {
 struct Color(PdfColor);
 
 impl fmt::Display for Color {
-    // This trait requires `fmt` with this exact signature.
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
@@ -62,13 +61,13 @@ struct Args {
     #[arg(short, long, default_value_t = 0., value_parser = float_parser)]
     bottom: f32,
 
-    /// Spacing between grid lines
+    /// Spacing between grid lines [default: 5 mm]
     #[arg(short, long, value_parser = float_parser)]
-    spacing: f32,
+    spacing: Option<f32>,
 
-    /// Line width
+    /// Line width [default: 0.1 mm]
     #[arg(short = 'w', long, value_parser = float_parser)]
-    line_width: f32,
+    line_width: Option<f32>,
 
     /// Unit of the numeric parameters (points = inches/72)
     #[arg(short, long, default_value_t = Unit::Mm, value_enum)]
@@ -86,7 +85,8 @@ struct Args {
     #[arg(short, long, default_value_t = false)]
     mirror: bool,
 
-    #[arg(short, long, default_value_t = Color(PdfColor::new(200, 200, 200, 255)), value_parser=color_parser)]
+    /// Color of the grid lines (format: #A0B0C0 or #ABC for RGB, #A0 or #A for grayscale, # is optional)
+    #[arg(short, long, default_value_t = Color(PdfColor::new(0xf0, 0xf0, 0xf0, 0xff)), value_parser=color_parser)]
     color: Color,
 }
 
@@ -247,7 +247,6 @@ fn extend_pdf(input: &str, output: &str, params: &ExtendParams) -> Result<(), Pd
         page.set_content_regeneration_strategy(PdfPageContentRegenerationStrategy::Manual);
         let boundaries = page.boundaries_mut();
 
-        // use crop box if available, otherwise use media box
         let rect_old = boundaries.bounding()?.bounds;
         let mut rect_new = rect_old;
 
@@ -311,17 +310,13 @@ fn main() {
             to_points(args.top),
             to_points(args.right),
         ),
-        spacing: to_points(args.spacing),
-        line_width: to_points(args.line_width),
+        spacing: args.spacing.map(to_points).unwrap_or(PdfPoints::from_mm(5.)),
+        line_width: args.line_width.map(to_points).unwrap_or(PdfPoints::from_mm(0.1)),
         grid: args.grid,
         color: args.color.0,
         extra_page: args.extra_page,
         mirror: args.mirror,
     };
 
-    // println!(
-    //     "Input: {}\nOutput: {}\nExtend: {} {} {} {} {}",
-    //     args.input, args.output, args.left, args.top, args.right, args.bottom, args.color
-    // );
     extend_pdf(&args.input, &args.output, &params).unwrap()
 }
