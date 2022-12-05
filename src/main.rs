@@ -18,6 +18,7 @@ enum Unit {
 enum LineType {
     Lines,
     Squares,
+    Dots,
 }
 
 #[derive(Copy, Clone, Debug)]
@@ -145,22 +146,54 @@ fn make_grid<'a>(
     let width = params.line_width;
     let spacing = params.spacing;
 
-    let mut path = PdfPagePathObject::new(
-        doc,
-        rect_outer.left,
-        rect_outer.top,
-        Some(params.color),
-        Some(width),
-        None,
-    )?;
+    let mut path = PdfPagePathObject::new(doc, rect_outer.left, rect_outer.top, None, None, None)?;
     path.set_line_cap(PdfPageObjectLineCap::Butt)?;
 
-    let mut draw_line = |x1, y1, x2, y2| {
-        path.move_to(x1, y1)?;
-        path.line_to(x2, y2)
-    };
+    let grid = params.grid.unwrap();
+    Ok(if grid == LineType::Dots {
+        let mut path = PdfPagePathObject::new(
+            doc,
+            rect_outer.left,
+            rect_outer.top,
+            None,
+            None,
+            Some(params.color),
+        )?;
+        let mut y = rect_outer.top - spacing;
+        while y >= rect_outer.bottom + width {
+            let mut x = rect_outer.left + spacing;
+            while x <= rect_outer.right - width {
+                match rect_inner {
+                    Some(rect_inner)
+                        if x >= rect_inner.left - width
+                            && x <= rect_inner.right + spacing
+                            && y <= rect_inner.top + spacing
+                            && y >= rect_inner.bottom - spacing => {}
+                    _ => {
+                        path.move_to(x - width / 2., y - width / 2.)?;
+                        path.circle_to(x + width / 2., y + width / 2.)?;
+                    }
+                }
+                x += spacing;
+            }
+            y -= spacing;
+        }
+        path
+    } else {
+        let mut path = PdfPagePathObject::new(
+            doc,
+            rect_outer.left,
+            rect_outer.top,
+            Some(params.color),
+            Some(width),
+            None,
+        )?;
 
-    if let Some(grid) = params.grid {
+        let mut draw_line = |x1, y1, x2, y2| {
+            path.move_to(x1, y1)?;
+            path.line_to(x2, y2)
+        };
+
         let mut y = rect_outer.top - spacing;
         while y > rect_outer.bottom {
             match rect_inner {
@@ -194,9 +227,8 @@ fn make_grid<'a>(
                 x += spacing;
             }
         }
-    }
-
-    Ok(path)
+        path
+    })
 }
 
 fn extend_pdf(input: &str, output: &str, params: &ExtendParams) -> Result<(), PdfiumError> {
@@ -212,7 +244,7 @@ fn extend_pdf(input: &str, output: &str, params: &ExtendParams) -> Result<(), Pd
     for (i, mut page) in doc.pages().iter().enumerate() {
         pb.inc(1);
 
-        page.set_content_regeneration_strategy(PdfPageContentRegenerationStrategy::AutomaticOnDrop);
+        page.set_content_regeneration_strategy(PdfPageContentRegenerationStrategy::Manual);
         let boundaries = page.boundaries_mut();
 
         // use crop box if available, otherwise use media box
@@ -237,8 +269,11 @@ fn extend_pdf(input: &str, output: &str, params: &ExtendParams) -> Result<(), Pd
         boundaries.set_art(rect_new)?;
         boundaries.set_trim(rect_new)?;
 
-        let grid = make_grid(&doc, Some(&rect_old), &rect_new, params)?;
-        page.objects_mut().add_path_object(grid)?;
+        if params.grid.is_some() {
+            let grid = make_grid(&doc, Some(&rect_old), &rect_new, params)?;
+            page.objects_mut().add_path_object(grid)?;
+        }
+        page.regenerate_content()?;
     }
 
     if params.extra_page {
