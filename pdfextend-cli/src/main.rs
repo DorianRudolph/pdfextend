@@ -298,7 +298,8 @@ fn extend_pdf(input: &str, output: &str, params: &ExtendParams) -> Result<(), Pd
 }
 
 fn main() {
-    let args = Args::parse();
+    // let args = Args::parse();
+    let args = Args::try_parse().unwrap();
     let to_points = |x| match args.unit {
         Unit::Mm => PdfPoints::from_mm(x),
         Unit::Cm => PdfPoints::from_cm(x),
