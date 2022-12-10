@@ -1,8 +1,46 @@
-use pdfium_render::prelude::*;
+use std::fmt::format;
 
+use pdfextend_lib::{Args, Parser, PdfColor, PdfPageIndex, PdfRenderConfig, Pdfium, PdfiumError};
 use wasm_bindgen::prelude::*;
+use web_sys::{Blob, ImageData};
 
-use web_sys::ImageData;
+#[wasm_bindgen]
+pub struct PdfExtendOut {
+    file: Option<Blob>,
+    preview: Option<ImageData>,
+}
+
+#[wasm_bindgen]
+impl PdfExtendOut {
+    pub fn get_file(&mut self) -> Option<Blob> {
+        self.file.take()
+    }
+    pub fn get_preview(&mut self) -> Option<ImageData> {
+        self.preview.take()
+    }
+}
+
+fn err_to_str(e: PdfiumError) -> String {
+    format!("{:?}", e)
+}
+
+#[wasm_bindgen]
+pub async fn extend_pdf(cmd: String, blob: Blob) -> Result<PdfExtendOut, String> {
+    let args = cmd.split(' ');
+    let args = Args::try_parse_from(args).map_err(|e| e.to_string())?;
+    let bindings = Pdfium::bind_to_system_library().map_err(err_to_str)?;
+    let pdfium = Pdfium::new(bindings);
+    let mut doc = pdfium
+        .load_pdf_from_blob(blob, None)
+        .await
+        .map_err(err_to_str)?;
+    pdfextend_lib::extend_pdf(&mut doc, &args, None).map_err(err_to_str)?;
+    let save = doc.save_to_blob().map_err(err_to_str)?;
+    Ok(PdfExtendOut {
+        file: Some(save),
+        preview: None,
+    })
+}
 
 #[wasm_bindgen]
 pub async fn log_page_metrics_to_console(url: String) {

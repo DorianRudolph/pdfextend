@@ -7,9 +7,9 @@ edition = "2021"
 crate-type = ["cdylib"]
 
 [dependencies]
+pdfextend-lib = { path = "../pdfextend-lib" }
 console_log = "0.2.0"
 log = "0.4.17"
-pdfium-render = "0.7.11"
 wasm-bindgen = { version = "0.2.83", features = ["enable-interning"] }
 wasm-bindgen-futures = "0.4.33"
 web-sys = { version = "0.3.60", features = ["TextDecoder", "ImageData", "Window", "Response", "Blob"] }
