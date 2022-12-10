@@ -28,9 +28,9 @@ fn main() {
         .expect("Failed to load PDF");
 
     let page_count = doc.pages().len();
-    let pb = ProgressBar::new(page_count as u64);
+    let pb = ProgressBar::new(page_count as u64 + args.extra_page as u64);
 
-    extend_pdf(&mut doc, &args, None).unwrap();
+    extend_pdf(&mut doc, &args, Some(&|_| pb.inc(1))).unwrap();
 
     pb.set_style(ProgressStyle::with_template("{wide_msg}").unwrap());
     pb.set_message("Saving...");
