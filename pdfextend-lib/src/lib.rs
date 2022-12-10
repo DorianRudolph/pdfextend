@@ -1,9 +1,9 @@
-use clap::{Parser, ValueEnum};
-use pdfium_render::prelude::*;
+pub use clap::{Parser, ValueEnum};
+pub use pdfium_render::prelude::*;
 use std::fmt;
 
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum, Debug)]
-enum Unit {
+pub enum Unit {
     Mm,
     Cm,
     Inches,
@@ -11,14 +11,14 @@ enum Unit {
 }
 
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum, Debug)]
-enum LineType {
+pub enum LineType {
     Lines,
     Squares,
     Dots,
 }
 
 #[derive(Copy, Clone, Debug)]
-struct Color(PdfColor);
+pub struct Color(PdfColor);
 
 impl fmt::Display for Color {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -36,54 +36,54 @@ impl fmt::Display for Color {
 #[command(author, version, about, long_about = None)]
 pub struct Args {
     /// Path to input PDF file
-    input: String,
+    pub input: String,
 
     /// Path to output PDF file
-    output: String,
+    pub output: String,
 
     /// Extend document by <LEFT> to the left
     #[arg(short, long, default_value_t = 0., value_parser = float_parser)]
-    left: f32,
+    pub left: f32,
 
     /// Extend document by <RIGHT> to the right
     #[arg(short, long, default_value_t = 0., value_parser = float_parser)]
-    right: f32,
+    pub right: f32,
 
     /// Extend document by <TOP> to the top
     #[arg(short, long, default_value_t = 0., value_parser = float_parser)]
-    top: f32,
+    pub top: f32,
 
     /// Extend document by <BOTTOM> to the bottom
     #[arg(short, long, default_value_t = 0., value_parser = float_parser)]
-    bottom: f32,
+    pub bottom: f32,
 
     /// Spacing between grid lines [default: 5 mm]
     #[arg(short, long, value_parser = float_parser)]
-    spacing: Option<f32>,
+    pub spacing: Option<f32>,
 
     /// Line width [default: 0.1 mm for lines, 0.7mm for dots]
     #[arg(short = 'w', long, value_parser = float_parser)]
-    line_width: Option<f32>,
+    pub line_width: Option<f32>,
 
     /// Unit of the numeric parameters (points = inches/72)
     #[arg(short, long, default_value_t = Unit::Mm, value_enum)]
-    unit: Unit,
+    pub unit: Unit,
 
     /// Add grid to the extended margins
     #[arg(short, long, value_enum)]
-    grid: Option<LineType>,
+    pub grid: Option<LineType>,
 
     /// Append an additional page with grid to the document
     #[arg(short, long, default_value_t = false)]
-    extra_page: bool,
+    pub extra_page: bool,
 
     /// Swap <LEFT> and <RIGHT> for even pages
     #[arg(short, long, default_value_t = false)]
-    mirror: bool,
+    pub mirror: bool,
 
     /// Color of the grid lines (format: #A0B0C0 or #ABC for RGB, #A0 or #A for grayscale, # is optional)
     #[arg(short, long, default_value_t = Color(PdfColor::new(0xf0, 0xf0, 0xf0, 0xff)), value_parser=color_parser)]
-    color: Color,
+    pub color: Color,
 }
 
 struct ExtendParams {

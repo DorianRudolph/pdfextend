@@ -8,6 +8,5 @@ authors = ["Dorian Rudolph <mail@dorianrudolph.com>"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-clap = { version = "4.0.27", features = ["derive"] }
 indicatif = "0.17.2"
-pdfium-render = "0.7.11"
+pdfextend-lib = { path = "../pdfextend-lib" }
