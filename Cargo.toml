@@ -3,6 +3,7 @@
 members = [
     "pdfextend-cli",
     "pdfextend-lib",
+    "pdfextend-web",
 ]
 
 [profile.release]
