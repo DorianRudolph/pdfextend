@@ -70,7 +70,6 @@ pub async fn log_page_metrics_to_console(url: String) {
 
 /// Downloads the given url, opens it as a PDF document, then returns the ImageData for
 /// the given page index using the given bitmap dimensions.
-#[cfg(target_arch = "wasm32")]
 #[wasm_bindgen]
 pub async fn get_image_data_for_page(
     url: String,
