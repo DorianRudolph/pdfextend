@@ -1,5 +1,3 @@
-use std::fmt::format;
-
 use pdfextend_lib::{Args, Parser, PdfColor, PdfPageIndex, PdfRenderConfig, Pdfium, PdfiumError};
 use wasm_bindgen::prelude::*;
 use web_sys::{Blob, ImageData};
@@ -38,7 +36,7 @@ pub async fn extend_pdf(cmd: String, blob: Blob) -> Result<PdfExtendOut, JsValue
     let save = doc.save_to_blob().map_err(err_to_str)?;
     let page1 = doc.pages().first().map_err(err_to_str)?;
     let (w, h) = (page1.width().value, page1.height().value);
-    let scale = 1e6 / (w * h); // 1 Mpx
+    let scale = (1e6 / (w * h)).sqrt(); // 1 Mpx
     let (w, h) = ((w * scale) as u16, (h * scale) as u16);
     let preview = page1
         .render_with_config(
@@ -86,8 +84,6 @@ pub async fn log_page_metrics_to_console(url: String) {
         None => log::info!("PDF does not contain an embedded form"),
     };
 
-    // Report labels, boundaries, and metrics for each page to the console.
-
     document
         .pages()
         .iter()
@@ -120,8 +116,6 @@ pub async fn log_page_metrics_to_console(url: String) {
         });
 }
 
-/// Downloads the given url, opens it as a PDF document, then returns the ImageData for
-/// the given page index using the given bitmap dimensions.
 #[wasm_bindgen]
 pub async fn get_image_data_for_page(
     url: String,
