@@ -25,7 +25,7 @@ fn err_to_str(e: PdfiumError) -> String {
 }
 
 #[wasm_bindgen]
-pub async fn extend_pdf(cmd: String, blob: Blob) -> Result<PdfExtendOut, String> {
+pub async fn extend_pdf(cmd: String, blob: Blob) -> Result<PdfExtendOut, JsValue> {
     let args = cmd.split(' ');
     let args = Args::try_parse_from(args).map_err(|e| e.to_string())?;
     let bindings = Pdfium::bind_to_system_library().map_err(err_to_str)?;
@@ -36,9 +36,23 @@ pub async fn extend_pdf(cmd: String, blob: Blob) -> Result<PdfExtendOut, String>
         .map_err(err_to_str)?;
     pdfextend_lib::extend_pdf(&mut doc, &args, None).map_err(err_to_str)?;
     let save = doc.save_to_blob().map_err(err_to_str)?;
+    let page1 = doc.pages().first().map_err(err_to_str)?;
+    let (w, h) = (page1.width().value, page1.height().value);
+    let scale = 1e6 / (w * h); // 1 Mpx
+    let (w, h) = ((w * scale) as u16, (h * scale) as u16);
+    let preview = page1
+        .render_with_config(
+            &PdfRenderConfig::new()
+                .set_target_size(w, h)
+                .render_form_data(true)
+                .highlight_text_form_fields(PdfColor::SOLID_YELLOW.with_alpha(128))
+                .highlight_checkbox_form_fields(PdfColor::SOLID_BLUE.with_alpha(128)),
+        )
+        .map_err(err_to_str)?
+        .as_image_data()?;
     Ok(PdfExtendOut {
         file: Some(save),
-        preview: None,
+        preview: Some(preview),
     })
 }
 
