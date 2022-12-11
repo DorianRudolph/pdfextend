@@ -26,41 +26,30 @@
         const fileInput = document.getElementById('file');
         const canvas = document.getElementById('canvas');
 
+        let worker = new Worker('worker.js');
+        worker.onmessage = e => {
+            const msg = e.data;
+            console.log('receive', msg);
+            if (msg.type == 'extend') {
+                canvas.width = msg.preview.width;
+                canvas.height = msg.preview.height;
+                const context = canvas.getContext("2d");
+                context.putImageData(msg.preview, 0, 0);
+            }
+        }
+
         btnRun.onclick = async e => {
             if (!fileInput.files) {
                 alert("Open a PDF first");
                 return;
             }
-            const inputFile = fileInput.files[0];
-            console.log(file);
-            const res = await extend_pdf("pdfextend i.pdf o.pdf", inputFile);
-            const outputFile = res.get_file();
-            const preview = res.get_preview();
-
-            console.log('done', outputFile, preview);
-
-            canvas.width = preview.width;
-            canvas.height = preview.height;
-            const context = canvas.getContext("2d");
-            context.putImageData(preview, 0, 0);
+            const msg = {
+                type: 'extend',
+                file: fileInput.files[0],
+                command: `pdfextend input.pdf output.pdf --right=50 --grid=squares`
+            }
+            worker.postMessage(msg);
         };
-
-        PDFiumModule().then(async mod => {
-            Module = mod;
-            wasmTable = Module.asm.__indirect_function_table;
-
-            rustModule = await wasm_bindgen('pdfextend_web_bg.wasm');
-
-            console.assert(
-                initialize_pdfium_render(
-                    Module,
-                    rustModule,
-                    true,
-                ),
-                "Initialization of pdfium-render failed!"
-            );
-            console.log("PDFium initialized.");
-        });
 
     </script>
 </body>
