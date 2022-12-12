@@ -3,28 +3,80 @@
 
 <head>
     <meta charset="utf-8" />
-    <script src="pdfium.js"></script>
-    <script src="pdfextend_web.js"></script>
+    <title>PDFextend</title>
 </head>
 
 <body>
-    <input type="file" accept=".pdf" id="file" />
+    <style>
+        form {
+            display: grid;
+            width: 300px;
+        }
+
+        form input,
+        form select {
+            grid-column: 2/2;
+        }
+
+        form label {
+            grid-column: 1/2;
+        }
+    </style>
+
+    <form>
+        <label for="left">Left:</label>
+        <input type="number" min="0" max="100000" id="left" name="left">
+
+        <label for="right">Right:</label>
+        <input type="number" min="0" max="100000" id="right" name="right">
+
+        <label for="top">Top:</label>
+        <input type="number" min="0" max="100000" id="top" name="top">
+
+        <label for="bottom">Bottom:</label>
+        <input type="number" min="0" max="100000" id="bottom" name="bottom">
+
+        <label for="spacing">Spacing:</label>
+        <input type="number" min="0" max="100000" id="spacing" name="spacing" value="5">
+
+        <label for="spacing">Spacing:</label>
+        <input type="number" min="0" max="100000" id="spacing" name="spacing">
+
+        <label for="grid">Grid:</label>
+        <select id="grid" name="grid">
+            <option value="squares">Squares</option>
+            <option value="lines">Lines</option>
+            <option value="dots">Dots</option>
+            <option value="none">None</option>
+        </select>
+
+        <label for="unit">Unit:</label>
+        <select id="unit" name="unit">
+            <option value="mm">mm</option>
+            <option value="cm">cm</option>
+            <option value="inches">inches</option>
+            <option value="points">points</option>
+        </select>
+
+        <label for="file">File:</label>
+        <input type="file" accept=".pdf" id="file" />
+
+    </form>
+
     <br />
-    <button id="run">Run!</button>
-    <br />
-    <canvas id="canvas" style="max-width: 100%; height: auto; border: 1px solid black;"></canvas>
+    <button id="run">Extend!</button>
+
+    <div id="result" hidden>
+        <a id="download" href="">Download</a>
+        <br />
+        <canvas id="canvas" style="max-width: 100%; height: auto; border: 1px solid black;"></canvas>
+    </div>
 
     <script>
-        const {
-            initialize_pdfium_render,
-            log_page_metrics_to_console,
-            get_image_data_for_page,
-            extend_pdf
-        } = wasm_bindgen;
-
         const btnRun = document.getElementById('run');
         const fileInput = document.getElementById('file');
         const canvas = document.getElementById('canvas');
+        const downloadLink = document.getElementById('download');
 
         let worker = new Worker('worker.js');
         worker.onmessage = e => {
@@ -35,6 +87,9 @@
                 canvas.height = msg.preview.height;
                 const context = canvas.getContext("2d");
                 context.putImageData(msg.preview, 0, 0);
+                downloadLink.href = URL.createObjectURL(msg.file);
+                document.getElementById("result").hidden = false;
+                downloadLink.download = msg.fileName;
             }
         }
 

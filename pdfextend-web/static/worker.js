@@ -20,16 +20,18 @@ onmessage = async e => {
     const msg = e.data;
     console.log('onmessage', msg);
     if (msg.type == 'extend') {
+        let name = msg.file.name.replace(/(\.pdf)?$/, '_ext.pdf');
         const res = await extend_pdf(msg.command, msg.file);
         const file = res.get_file();
         const preview = res.get_preview();
-        // https://stackoverflow.com/questions/63641798/is-copying-a-large-blob-over-to-a-worker-expensive/63642296#63642296
+        // Blob is cheap to transfer: https://stackoverflow.com/questions/63641798/is-copying-a-large-blob-over-to-a-worker-expensive/63642296#63642296
+        // TODO: transfer preview, but I get error "ArrayBuffer at index 0 is not detachable and could not be transferred"
+        // Tried to return ArrayBuffer directly from rust, but got the same error
         postMessage({
             type: 'extend',
             file: file,
-            preview: preview
+            preview: preview,
+            fileName: name
         });
-        // TODO: transfer preview, but I get error "ArrayBuffer at index 0 is not detachable and could not be transferred"
-        // Tried to return ArrayBuffer directly from rust, but got the same error
     }
 }
