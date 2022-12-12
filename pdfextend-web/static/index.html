@@ -1,112 +1,90 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
 
 <head>
-    <meta charset="utf-8" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="pico.min.css">
+    <script src="script.js" defer></script>
     <title>PDFextend</title>
 </head>
 
 <body>
-    <style>
-        form {
-            display: grid;
-            width: 300px;
-        }
+    <!-- <header class="container">
+        <h1>PDFextend</h1>
+    </header> -->
+    <main class="container">
 
-        form input,
-        form select {
-            grid-column: 2/2;
-        }
+        <h1>PDFextend</h1>
 
-        form label {
-            grid-column: 1/2;
-        }
-    </style>
+        <p>Add margins with grid lines for annotation to any PDF document.</p>
 
-    <form>
-        <label for="left">Left:</label>
-        <input type="number" min="0" max="100000" id="left" name="left">
+        <section>
 
-        <label for="right">Right:</label>
-        <input type="number" min="0" max="100000" id="right" name="right">
+            <form>
+                <div class="grid">
+                    <label for="left">Left:
+                        <input type="number" min="0" max="100000" value="0" id="left" name="left">
+                    </label>
 
-        <label for="top">Top:</label>
-        <input type="number" min="0" max="100000" id="top" name="top">
+                    <label for="right">Right:
+                        <input type="number" min="0" max="100000" value="0" id="right" name="right">
+                    </label>
 
-        <label for="bottom">Bottom:</label>
-        <input type="number" min="0" max="100000" id="bottom" name="bottom">
+                    <label for="top">Top:
+                        <input type="number" min="0" max="100000" value="0" id="top" name="top">
+                    </label>
 
-        <label for="spacing">Spacing:</label>
-        <input type="number" min="0" max="100000" id="spacing" name="spacing" value="5">
+                    <label for="bottom">Bottom:
+                        <input type="number" min="0" max="100000" value="0" id="bottom" name="bottom">
+                    </label>
+                </div>
 
-        <label for="spacing">Spacing:</label>
-        <input type="number" min="0" max="100000" id="spacing" name="spacing">
+                <label for="spacing">Spacing:
+                    <input type="number" min="0" max="100000" value="5" id="spacing" name="spacing" value="5">
+                </label>
 
-        <label for="grid">Grid:</label>
-        <select id="grid" name="grid">
-            <option value="squares">Squares</option>
-            <option value="lines">Lines</option>
-            <option value="dots">Dots</option>
-            <option value="none">None</option>
-        </select>
+                <label for="width">Line thickness:
+                    <input type="number" min="0" max="100000" id="width" name="width">
+                </label>
 
-        <label for="unit">Unit:</label>
-        <select id="unit" name="unit">
-            <option value="mm">mm</option>
-            <option value="cm">cm</option>
-            <option value="inches">inches</option>
-            <option value="points">points</option>
-        </select>
+                <label for="grid">Grid:
+                    <select id="grid" name="grid">
+                        <option value="squares">Squares</option>
+                        <option value="lines">Lines</option>
+                        <option value="dots">Dots</option>
+                        <option value="none">None</option>
+                    </select>
+                </label>
 
-        <label for="file">File:</label>
-        <input type="file" accept=".pdf" id="file" />
+                <label for="unit">Unit:
+                    <select id="unit" name="unit">
+                        <option value="mm">mm</option>
+                        <option value="cm">cm</option>
+                        <option value="inches">inches</option>
+                        <option value="points">points</option>
+                    </select>
+                </label>
 
-    </form>
+                <label for="file">File:
+                    <input type="file" accept=".pdf" id="file" />
+                </label>
 
-    <br />
-    <button id="run">Extend!</button>
+            </form>
+        </section>
 
-    <div id="result" hidden>
-        <a id="download" href="">Download</a>
         <br />
-        <canvas id="canvas" style="max-width: 100%; height: auto; border: 1px solid black;"></canvas>
-    </div>
 
-    <script>
-        const btnRun = document.getElementById('run');
-        const fileInput = document.getElementById('file');
-        const canvas = document.getElementById('canvas');
-        const downloadLink = document.getElementById('download');
+        <button id="run">Extend!</button>
 
-        let worker = new Worker('worker.js');
-        worker.onmessage = e => {
-            const msg = e.data;
-            console.log('receive', msg);
-            if (msg.type == 'extend') {
-                canvas.width = msg.preview.width;
-                canvas.height = msg.preview.height;
-                const context = canvas.getContext("2d");
-                context.putImageData(msg.preview, 0, 0);
-                downloadLink.href = URL.createObjectURL(msg.file);
-                document.getElementById("result").hidden = false;
-                downloadLink.download = msg.fileName;
-            }
-        }
+        <div id="result" hidden>
+            <a id="download" href="">Download</a>
+            <br />
+            <canvas id="canvas" style="max-width: 100%; height: auto; border: 1px solid black;"></canvas>
+        </div>
 
-        btnRun.onclick = async e => {
-            if (!fileInput.files) {
-                alert("Open a PDF first");
-                return;
-            }
-            const msg = {
-                type: 'extend',
-                file: fileInput.files[0],
-                command: `pdfextend input.pdf output.pdf --right=50 --grid=squares`
-            }
-            worker.postMessage(msg);
-        };
+    </main>
 
-    </script>
 </body>
 
 </html>
