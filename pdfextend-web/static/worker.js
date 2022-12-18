@@ -2,14 +2,10 @@ importScripts('pdfium.js', 'pdfextend_web.js');
 
 const { initialize_pdfium_render, extend_pdf } = wasm_bindgen;
 
-const loaded = PDFiumModule().then(async mod => {
-    Module = mod;
-    wasmTable = Module.asm.__indirect_function_table;
-
-    rustModule = await wasm_bindgen('pdfextend_web_bg.wasm');
-
+const loaded = PDFiumModule().then(async pdfiumModule => {
+    const rustModule = await wasm_bindgen('pdfextend_web_bg.wasm');
     console.assert(
-        initialize_pdfium_render(Module, rustModule, false),
+        initialize_pdfium_render(pdfiumModule, rustModule, false),
         "Initialization of pdfium-render failed!"
     );
     console.log("PDFium initialized.");
