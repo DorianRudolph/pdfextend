@@ -6,6 +6,8 @@ import Link from '@mui/material/Link';
 import ProTip from './ProTip';
 import Checkout from './Checkout';
 
+import PdfExtend from './PdfExtend';
+
 function Copyright() {
   return (
     <Typography variant="body2" color="text.secondary" align="center">
@@ -18,7 +20,13 @@ function Copyright() {
   );
 }
 
-export default function App() {
+function C() {
+  return (
+    <Checkout></Checkout>
+  );
+}
+
+function Init() {
   return (
     <Container maxWidth="sm">
       <Box sx={{ my: 4 }}>
@@ -28,7 +36,16 @@ export default function App() {
         <ProTip />
         <Copyright />
       </Box>
-      <Checkout></Checkout>
     </Container>
   );
+}
+
+function E() {
+  return (
+    <PdfExtend/>
+  );
+}
+
+export default function App() {
+  return E();
 }
