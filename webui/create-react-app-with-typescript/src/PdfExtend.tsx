@@ -20,7 +20,7 @@ import {
 } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import * as React from 'react';
-import { FormProvider, useForm, SubmitHandler } from 'react-hook-form';
+import { FormProvider, useForm, SubmitHandler, ControllerProps } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Controller, useFormContext } from 'react-hook-form';
@@ -80,14 +80,16 @@ const MyComp: React.FC<Props> = ({ Comp }) => {
 
 // https://codevoweb.com/form-validation-react-hook-form-material-ui-react/
 let minMax = (min: number, max: number) => z.number().min(min, `< ${min}`).max(max, `> ${max}`);
-const marginType = z.preprocess((x) => (x === '' ? '0' : x), minMax(0, 1e6));
+const znum = (n: z.ZodNumber) =>
+  z.preprocess((x) => (typeof x === 'string' ? parseFloat(x || '0') : x), n);
+const marginType = znum(minMax(0, 1e6));
 const paramsSchema = z.object({
   leftMargin: marginType,
   rightMargin: marginType,
   topMargin: marginType,
   bottomMargin: marginType,
-  spacing: minMax(1, 1e6),
-  lineWidth: minMax(1, 1e6),
+  spacing: znum(minMax(1, 1e6)),
+  lineWidth: znum(minMax(0, 1e6)),
   grid: z.enum(['none', 'squares', 'lines', 'dots']),
   unit: z.enum(['mm', 'cm', 'inches', 'points']),
   mirror: z.boolean(),
@@ -96,12 +98,13 @@ const paramsSchema = z.object({
 });
 type Params = z.TypeOf<typeof paramsSchema>;
 
-type IFormInputProps<T> = {
-  Comp: T;
+type IFormInputProps = {
+  Comp: any;
   name: string;
   [rest: string]: any;
 };
-const FormInput: React.FC<IFormInputProps> = ({ Comp, name, ...rest }) => {
+
+const FormInput2: React.FC<IFormInputProps> = ({ Comp, name, ...rest }) => {
   const {
     control,
     formState: { errors }
@@ -115,6 +118,35 @@ const FormInput: React.FC<IFormInputProps> = ({ Comp, name, ...rest }) => {
       render={({ field }) => (
         <Comp
           {...rest}
+          {...field}
+          error={!!errors[name]}
+          helperText={(errors?.[name]?.message as string) || ''}
+        />
+      )}
+    />
+  );
+};
+
+type INumberInputProps = {
+  name: string;
+  label: string;
+  [rest: string]: any;
+};
+
+const NumberInput: React.FC<INumberInputProps> = ({ name, label }) => {
+  const {
+    control,
+    formState: { errors }
+  } = useFormContext();
+
+  return (
+    <Controller
+      control={control}
+      name={name}
+      defaultValue=""
+      render={({ field }) => (
+        <TextField
+          label={label}
           {...field}
           error={!!errors[name]}
           helperText={(errors?.[name]?.message as string) || ''}
@@ -139,6 +171,7 @@ export default function PdfExtend() {
   const onSubmitHandler: SubmitHandler<Params> = (values) => {
     console.log(values);
   };
+  console.log(errors);
 
   return (
     <ThemeProvider theme={theme}>
@@ -165,8 +198,17 @@ export default function PdfExtend() {
             onSubmit={handleSubmit(onSubmitHandler)}
           >
             <Grid container spacing={2}>
-              <Grid item xs={3}>
-                <FormInput Comp={TextField} name="leftMargin" label="Left" fullWidth></FormInput>
+              <Grid item xs={6} sm={3}>
+                <NumberInput name="leftMargin" label="Left" />
+              </Grid>
+              <Grid item xs={6} sm={3}>
+                <NumberInput name="rightMargin" label="Right" />
+              </Grid>
+              <Grid item xs={6} sm={3}>
+                <NumberInput name="topMargin" label="Top" />
+              </Grid>
+              <Grid item xs={6} sm={3}>
+                <NumberInput name="bottomMargin" label="Bottom" />
               </Grid>
               {/* <Grid item xs={3}>
               <TextField
