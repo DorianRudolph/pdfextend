@@ -1,4 +1,4 @@
-import { Camera, NoteAdd } from '@mui/icons-material';
+import { Camera, FormatPaintSharp, NoteAdd } from '@mui/icons-material';
 import {
   AppBar,
   Box,
@@ -20,8 +20,10 @@ import {
 } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import * as React from 'react';
-import { useForm } from 'react-hook-form';
+import { FormProvider, useForm, SubmitHandler } from 'react-hook-form';
 import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Controller, useFormContext } from 'react-hook-form';
 
 function Copyright() {
   return (
@@ -69,21 +71,74 @@ const NumberButton: React.FC<{ id: string; [rest: string]: any }> = ({ id, ...re
 //   )
 // }
 
-export default function PdfExtend() {
+interface Props {
+  Comp: React.ComponentType;
+}
+const MyComp: React.FC<Props> = ({ Comp }) => {
+  return <Comp />;
+};
+
+// https://codevoweb.com/form-validation-react-hook-form-material-ui-react/
+let minMax = (min: number, max: number) => z.number().min(min, `< ${min}`).max(max, `> ${max}`);
+const marginType = z.preprocess((x) => (x === '' ? '0' : x), minMax(0, 1e6));
+const paramsSchema = z.object({
+  leftMargin: marginType,
+  rightMargin: marginType,
+  topMargin: marginType,
+  bottomMargin: marginType,
+  spacing: minMax(1, 1e6),
+  lineWidth: minMax(1, 1e6),
+  grid: z.enum(['none', 'squares', 'lines', 'dots']),
+  unit: z.enum(['mm', 'cm', 'inches', 'points']),
+  mirror: z.boolean(),
+  extraPage: z.boolean(),
+  file: z.instanceof(File)
+});
+type Params = z.TypeOf<typeof paramsSchema>;
+
+type IFormInputProps<T> = {
+  Comp: T;
+  name: string;
+  [rest: string]: any;
+};
+const FormInput: React.FC<IFormInputProps> = ({ Comp, name, ...rest }) => {
   const {
-    register,
-    handleSubmit,
+    control,
     formState: { errors }
-  } = useForm({
-    defaultValues: {
-      marginLeft: 0,
-      marginRight: 0,
-      marginTop: 0,
-      marginBottom: 0
-    }
+  } = useFormContext();
+
+  return (
+    <Controller
+      control={control}
+      name={name}
+      defaultValue=""
+      render={({ field }) => (
+        <Comp
+          {...rest}
+          {...field}
+          error={!!errors[name]}
+          helperText={(errors?.[name]?.message as string) || ''}
+        />
+      )}
+    />
+  );
+};
+
+export default function PdfExtend() {
+  const methods = useForm<Params>({
+    resolver: zodResolver(paramsSchema)
   });
 
-  const onSubmit = (data: any) => console.log(data);
+  const {
+    reset,
+    handleSubmit,
+    register,
+    formState: { isSubmitSuccessful, errors }
+  } = methods;
+
+  const onSubmitHandler: SubmitHandler<Params> = (values) => {
+    console.log(values);
+  };
 
   return (
     <ThemeProvider theme={theme}>
@@ -101,15 +156,19 @@ export default function PdfExtend() {
         <Typography variant="subtitle1">
           Add margins with grid lines for annotation to any PDF document.
         </Typography>
-        <Box
-          component="form"
-          sx={{ mt: 3 }}
-          onSubmit={handleSubmit(onSubmit)}
-          noValidate
-          autoComplete="off"
-        >
-          <Grid container spacing={2}>
-            <Grid item xs={3}>
+        <FormProvider {...methods}>
+          <Box
+            component="form"
+            sx={{ mt: 3 }}
+            noValidate
+            autoComplete="off"
+            onSubmit={handleSubmit(onSubmitHandler)}
+          >
+            <Grid container spacing={2}>
+              <Grid item xs={3}>
+                <FormInput Comp={TextField} name="leftMargin" label="Left" fullWidth></FormInput>
+              </Grid>
+              {/* <Grid item xs={3}>
               <TextField
                 fullWidth
                 id="marginLeft"
@@ -123,22 +182,23 @@ export default function PdfExtend() {
                   }
                 })}
               />
-            </Grid>
-            {/* <Grid item xs={3}>
+            </Grid> */}
+              {/* <Grid item xs={3}>
               <NumberButton id="marginRight" label="Right" required></NumberButton>
             </Grid> */}
-          </Grid>
-          <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
-            Sign Up
-          </Button>
-          <Grid container justifyContent="flex-end">
-            <Grid item>
-              <Link href="#" variant="body2">
-                Already have an account? Sign in
-              </Link>
             </Grid>
-          </Grid>
-        </Box>
+            <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
+              Sign Up
+            </Button>
+            <Grid container justifyContent="flex-end">
+              <Grid item>
+                <Link href="#" variant="body2">
+                  Already have an account? Sign in
+                </Link>
+              </Grid>
+            </Grid>
+          </Box>
+        </FormProvider>
       </Container>
 
       <Box sx={{ bgcolor: 'background.paper', p: 6 }} component="footer">
