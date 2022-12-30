@@ -6,8 +6,8 @@ use std::fmt;
 pub enum Unit {
     Mm,
     Cm,
-    Inches,
-    Points,
+    In,
+    Pt,
 }
 
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum, Debug)]
@@ -65,7 +65,7 @@ pub struct Args {
     #[arg(short = 'w', long, value_parser = float_parser)]
     pub line_width: Option<f32>,
 
-    /// Unit of the numeric parameters (points = inches/72)
+    /// Unit of the numeric parameters (pt = in/72)
     #[arg(short, long, default_value_t = Unit::Mm, value_enum)]
     pub unit: Unit,
 
