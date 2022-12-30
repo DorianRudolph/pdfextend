@@ -4,8 +4,10 @@ import {
   Box,
   Button,
   capitalize,
+  Checkbox,
   Container,
   CssBaseline,
+  FormControlLabel,
   Grid,
   InputAdornment,
   Link,
@@ -17,6 +19,7 @@ import {
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import * as React from 'react';
 import { Controller, FormProvider, SubmitHandler, useForm, useFormContext } from 'react-hook-form';
+import { MuiColorInput } from 'mui-color-input';
 
 function Copyright() {
   return (
@@ -47,8 +50,10 @@ class PdfExtendParams {
   unit: string = UNITS[0];
   mirror: boolean = false;
   extraPage: boolean = false;
+  color: string = '#F0F0F0';
   file: File | null = null;
 }
+const DEFAULT_PARAMS = new PdfExtendParams();
 
 type INumberInputProps = {
   name: string;
@@ -80,7 +85,6 @@ const NumberInput: React.FC<INumberInputProps> = ({ name, label, min }) => {
           if (isNaN(x)) return 'invalid number';
           if (x < min) return `< ${min}`;
           if (x > max) return `> ${max}`;
-          console.log(x);
           return true;
         }
       }}
@@ -89,7 +93,7 @@ const NumberInput: React.FC<INumberInputProps> = ({ name, label, min }) => {
           label={label}
           {...field}
           error={!!errors[name]}
-          helperText={(errors?.[name]?.message as string) || ''}
+          helperText={errors?.[name]?.message?.toString() || ''}
           InputProps={{
             endAdornment: <InputAdornment position="end">{watch('unit')}</InputAdornment>
           }}
@@ -102,8 +106,8 @@ const NumberInput: React.FC<INumberInputProps> = ({ name, label, min }) => {
 
 export default function PdfExtend() {
   const methods = useForm<PdfExtendParams>({
-    mode: 'onChange',
-    defaultValues: new PdfExtendParams()
+    mode: 'onBlur',
+    defaultValues: DEFAULT_PARAMS
   });
 
   const {
@@ -111,13 +115,13 @@ export default function PdfExtend() {
     handleSubmit,
     register,
     control,
+    watch,
     formState: { isSubmitSuccessful, errors }
   } = methods;
 
   const onSubmitHandler: SubmitHandler<PdfExtendParams> = (values) => {
     console.log('submit', values);
   };
-  console.log(errors);
 
   const disable = Object.keys(errors).length > 0;
 
@@ -160,12 +164,18 @@ export default function PdfExtend() {
                 <NumberInput name="bottomMargin" label="Bottom" min={0} />
               </Grid>
               <Grid item xs={6} sm={3}>
+                <NumberInput name="spacing" label="Spacing" min={1} />
+              </Grid>
+              <Grid item xs={6} sm={3}>
+                <NumberInput name="lineWidth" label="LineWidth" min={0} />
+              </Grid>
+              <Grid item xs={6} sm={3}>
                 <Controller
                   render={({ field }) => (
                     <TextField {...field} fullWidth label="Grid" select>
                       {GRIDS.map((grid) => (
                         <MenuItem value={grid} key={grid}>
-                          {grid}
+                          {capitalize(grid)}
                         </MenuItem>
                       ))}
                     </TextField>
@@ -187,6 +197,15 @@ export default function PdfExtend() {
                   )}
                   name="unit"
                   control={control}
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <FormControlLabel label="Mirror margins on even pages" control={<Checkbox />} />
+              </Grid>
+              <Grid item xs={6}>
+                <FormControlLabel
+                  label={`Append ${watch('grid') == 'none' ? 'blank' : 'grid'} page`}
+                  control={<Checkbox />}
                 />
               </Grid>
             </Grid>

@@ -11,6 +11,7 @@
     "@mui/material": "latest",
     "@types/react": "latest",
     "@types/react-dom": "latest",
+    "mui-color-input": "^1.0.4",
     "react": "latest",
     "react-dom": "latest",
     "react-hook-form": "^7.41.2",

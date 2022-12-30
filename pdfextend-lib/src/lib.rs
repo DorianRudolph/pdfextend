@@ -101,8 +101,8 @@ impl ExtendParams {
         let to_points = |x| match args.unit {
             Unit::Mm => PdfPoints::from_mm(x),
             Unit::Cm => PdfPoints::from_cm(x),
-            Unit::Inches => PdfPoints::from_inches(x),
-            Unit::Points => PdfPoints::new(x),
+            Unit::In => PdfPoints::from_inches(x),
+            Unit::Pt => PdfPoints::new(x),
         };
         ExtendParams {
             extend: PdfRect::new(
