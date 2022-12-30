@@ -11,8 +11,12 @@ import {
   Container,
   CssBaseline,
   FormControlLabel,
+  FormHelperText,
   Grid,
+  InputAdornment,
   Link,
+  MenuItem,
+  Select,
   Stack,
   TextField,
   Toolbar,
@@ -130,10 +134,11 @@ const FormInput2: React.FC<IFormInputProps> = ({ Comp, name, ...rest }) => {
 type INumberInputProps = {
   name: string;
   label: string;
+  unit: any;
   [rest: string]: any;
 };
 
-const NumberInput: React.FC<INumberInputProps> = ({ name, label }) => {
+const NumberInput: React.FC<INumberInputProps> = ({ name, label, unit }) => {
   const {
     control,
     formState: { errors }
@@ -150,11 +155,18 @@ const NumberInput: React.FC<INumberInputProps> = ({ name, label }) => {
           {...field}
           error={!!errors[name]}
           helperText={(errors?.[name]?.message as string) || ''}
+          InputProps={{
+            endAdornment: <InputAdornment position="end">{unit}</InputAdornment>
+          }}
         />
       )}
     />
   );
 };
+
+// let pdfExtendParams = {
+//   leftMargin: 0;
+// }
 
 export default function PdfExtend() {
   const methods = useForm<Params>({
@@ -165,6 +177,7 @@ export default function PdfExtend() {
     reset,
     handleSubmit,
     register,
+    control,
     formState: { isSubmitSuccessful, errors }
   } = methods;
 
@@ -197,40 +210,36 @@ export default function PdfExtend() {
             autoComplete="off"
             onSubmit={handleSubmit(onSubmitHandler)}
           >
+            {/* <FormHelperText sx={{ mb: 1 }}>Margins</FormHelperText> */}
             <Grid container spacing={2}>
               <Grid item xs={6} sm={3}>
-                <NumberInput name="leftMargin" label="Left" />
+                <NumberInput name="leftMargin" label="Left" unit="mm" />
               </Grid>
               <Grid item xs={6} sm={3}>
-                <NumberInput name="rightMargin" label="Right" />
+                <NumberInput name="rightMargin" label="Right" unit="mm" />
               </Grid>
               <Grid item xs={6} sm={3}>
-                <NumberInput name="topMargin" label="Top" />
+                <NumberInput name="topMargin" label="Top" unit="mm" />
               </Grid>
               <Grid item xs={6} sm={3}>
-                <NumberInput name="bottomMargin" label="Bottom" />
+                <NumberInput name="bottomMargin" label="Bottom" unit="mm" />
               </Grid>
-              {/* <Grid item xs={3}>
-              <TextField
-                fullWidth
-                id="marginLeft"
-                label="Left"
-                inputProps={{ inputMode: 'numeric' }}
-                {...register('marginLeft', {
-                  valueAsNumber: true,
-                  validate: (x) => {
-                    console.log(x);
-                    return true;
-                  }
-                })}
-              />
-            </Grid> */}
-              {/* <Grid item xs={3}>
-              <NumberButton id="marginRight" label="Right" required></NumberButton>
-            </Grid> */}
+              <Grid item xs={6} sm={3}>
+                <Controller
+                  render={({ field }) => (
+                    <Select {...field} fullWidth>
+                      <MenuItem value={10}>Ten</MenuItem>
+                      <MenuItem value={20}>Twenty</MenuItem>
+                      <MenuItem value={30}>Thirty</MenuItem>
+                    </Select>
+                  )}
+                  name="grid"
+                  control={control}
+                />
+              </Grid>
             </Grid>
             <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
-              Sign Up
+              Extend!
             </Button>
             <Grid container justifyContent="flex-end">
               <Grid item>
