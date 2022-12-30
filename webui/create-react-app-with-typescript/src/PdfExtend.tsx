@@ -19,7 +19,7 @@ import {
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import * as React from 'react';
 import { Controller, FormProvider, SubmitHandler, useForm, useFormContext } from 'react-hook-form';
-import { MuiColorInput } from 'mui-color-input';
+import { matchIsValidColor, MuiColorInput } from 'mui-color-input';
 
 function Copyright() {
   return (
@@ -63,11 +63,7 @@ type INumberInputProps = {
 };
 
 const NumberInput: React.FC<INumberInputProps> = ({ name, label, min }) => {
-  const {
-    watch,
-    control,
-    formState: { errors }
-  } = useFormContext();
+  const { watch, control } = useFormContext();
   const max = 1e6;
 
   return (
@@ -88,12 +84,12 @@ const NumberInput: React.FC<INumberInputProps> = ({ name, label, min }) => {
           return true;
         }
       }}
-      render={({ field }) => (
+      render={({ field, fieldState }) => (
         <TextField
           label={label}
           {...field}
-          error={!!errors[name]}
-          helperText={errors?.[name]?.message?.toString() || ''}
+          error={!!fieldState.error}
+          helperText={fieldState.error?.message || ''}
           InputProps={{
             endAdornment: <InputAdornment position="end">{watch('unit')}</InputAdornment>
           }}
@@ -124,6 +120,8 @@ export default function PdfExtend() {
   };
 
   const disable = Object.keys(errors).length > 0;
+
+  const [color, setColor] = React.useState('#ffffff');
 
   return (
     <ThemeProvider theme={theme}>
@@ -167,7 +165,7 @@ export default function PdfExtend() {
                 <NumberInput name="spacing" label="Spacing" min={1} />
               </Grid>
               <Grid item xs={6} sm={3}>
-                <NumberInput name="lineWidth" label="LineWidth" min={0} />
+                <NumberInput name="lineWidth" label="Line width" min={0} />
               </Grid>
               <Grid item xs={6} sm={3}>
                 <Controller
@@ -206,6 +204,24 @@ export default function PdfExtend() {
                 <FormControlLabel
                   label={`Append ${watch('grid') == 'none' ? 'blank' : 'grid'} page`}
                   control={<Checkbox />}
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <Controller
+                  name="color"
+                  control={control}
+                  rules={{ validate: matchIsValidColor }}
+                  render={({ field, fieldState }) => (
+                    <MuiColorInput
+                      {...field}
+                      format="hex"
+                      isAlphaHidden={true}
+                      label="Line color"
+                      fullWidth
+                      helperText={fieldState.error ? 'Color is invalid' : ''}
+                      error={!!fieldState.error}
+                    />
+                  )}
                 />
               </Grid>
             </Grid>
