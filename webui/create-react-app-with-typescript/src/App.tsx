@@ -8,6 +8,11 @@ import Checkout from './Checkout';
 
 import PdfExtend from './PdfExtend';
 
+import '@fontsource/roboto/300.css';
+import '@fontsource/roboto/400.css';
+import '@fontsource/roboto/500.css';
+import '@fontsource/roboto/700.css';
+
 function Copyright() {
   return (
     <Typography variant="body2" color="text.secondary" align="center">
@@ -21,9 +26,7 @@ function Copyright() {
 }
 
 function C() {
-  return (
-    <Checkout></Checkout>
-  );
+  return <Checkout></Checkout>;
 }
 
 function Init() {
@@ -41,9 +44,7 @@ function Init() {
 }
 
 function E() {
-  return (
-    <PdfExtend/>
-  );
+  return <PdfExtend />;
 }
 
 export default function App() {
