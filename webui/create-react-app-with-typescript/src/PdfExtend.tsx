@@ -3,6 +3,7 @@ import {
   AppBar,
   Box,
   Button,
+  capitalize,
   Container,
   CssBaseline,
   Grid,
@@ -36,12 +37,12 @@ const UNITS = ['mm', 'cm', 'in', 'pt'];
 const GRIDS = ['none', 'squares', 'lines', 'dots'];
 
 class PdfExtendParams {
-  leftMargin: number = 0;
-  rightMargin: number = 0;
-  topMargin: number = 0;
-  bottomMargin: number = 0;
-  spacing: number = 5;
-  lineWidth: number = 0.3;
+  leftMargin: string = '';
+  rightMargin: string = '';
+  topMargin: string = '';
+  bottomMargin: string = '';
+  spacing: string = '5';
+  lineWidth: string = '0.3';
   grid: string = GRIDS[0];
   unit: string = UNITS[0];
   mirror: boolean = false;
@@ -52,21 +53,37 @@ class PdfExtendParams {
 type INumberInputProps = {
   name: string;
   label: string;
+  min: number;
   [rest: string]: any;
 };
 
-const NumberInput: React.FC<INumberInputProps> = ({ name, label }) => {
+const NumberInput: React.FC<INumberInputProps> = ({ name, label, min }) => {
   const {
     watch,
     control,
     formState: { errors }
   } = useFormContext();
+  const max = 1e6;
 
   return (
     <Controller
       control={control}
       name={name}
-      defaultValue=""
+      rules={{
+        pattern: {
+          value: /^-?[0-9]+\.?[0-9]*$/,
+          message: 'invalid number'
+        },
+        validate: (v) => {
+          const x = parseFloat(v);
+          if (v === '') return true;
+          if (isNaN(x)) return 'invalid number';
+          if (x < min) return `< ${min}`;
+          if (x > max) return `> ${max}`;
+          console.log(x);
+          return true;
+        }
+      }}
       render={({ field }) => (
         <TextField
           label={label}
@@ -76,6 +93,7 @@ const NumberInput: React.FC<INumberInputProps> = ({ name, label }) => {
           InputProps={{
             endAdornment: <InputAdornment position="end">{watch('unit')}</InputAdornment>
           }}
+          inputProps={{ inputMode: 'numeric' }}
         />
       )}
     />
@@ -84,6 +102,7 @@ const NumberInput: React.FC<INumberInputProps> = ({ name, label }) => {
 
 export default function PdfExtend() {
   const methods = useForm<PdfExtendParams>({
+    mode: 'onChange',
     defaultValues: new PdfExtendParams()
   });
 
@@ -98,7 +117,9 @@ export default function PdfExtend() {
   const onSubmitHandler: SubmitHandler<PdfExtendParams> = (values) => {
     console.log('submit', values);
   };
-  // console.log(errors);
+  console.log(errors);
+
+  const disable = Object.keys(errors).length > 0;
 
   return (
     <ThemeProvider theme={theme}>
@@ -127,16 +148,16 @@ export default function PdfExtend() {
             {/* <FormHelperText sx={{ mb: 1 }}>Margins</FormHelperText> */}
             <Grid container spacing={2}>
               <Grid item xs={6} sm={3}>
-                <NumberInput name="leftMargin" label="Left" />
+                <NumberInput name="leftMargin" label="Left" min={0} />
               </Grid>
               <Grid item xs={6} sm={3}>
-                <NumberInput name="rightMargin" label="Right" />
+                <NumberInput name="rightMargin" label="Right" min={0} />
               </Grid>
               <Grid item xs={6} sm={3}>
-                <NumberInput name="topMargin" label="Top" />
+                <NumberInput name="topMargin" label="Top" min={0} />
               </Grid>
               <Grid item xs={6} sm={3}>
-                <NumberInput name="bottomMargin" label="Bottom" />
+                <NumberInput name="bottomMargin" label="Bottom" min={0} />
               </Grid>
               <Grid item xs={6} sm={3}>
                 <Controller
@@ -169,7 +190,13 @@ export default function PdfExtend() {
                 />
               </Grid>
             </Grid>
-            <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{ mt: 3, mb: 2 }}
+              disabled={disable}
+            >
               Extend!
             </Button>
             <Grid container justifyContent="flex-end">
