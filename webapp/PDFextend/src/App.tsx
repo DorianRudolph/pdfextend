@@ -106,6 +106,7 @@ function App() {
   };
 
   const disable = Object.keys(errors).length > 0;
+  const lineName = watch('grid') == 'dots' ? 'Dot' : 'Line';
 
   return (
     <ThemeProvider theme={theme}>
@@ -149,7 +150,7 @@ function App() {
                 <NumberInput name="spacing" label="Spacing" min={1} />
               </Grid>
               <Grid item xs={6} sm={3}>
-                <NumberInput name="lineWidth" label="Line width" min={0} />
+                <NumberInput name="lineWidth" label={`${lineName} width`} min={0} />
               </Grid>
               <Grid item xs={6} sm={3}>
                 <Controller
@@ -201,17 +202,15 @@ function App() {
                       format="hex"
                       inputProps={{ style: { fontFamily: 'monospace' } }}
                       isAlphaHidden={true}
-                      label="Line color"
+                      label={`${lineName} color`}
                       fullWidth
-                      helperText={fieldState.error ? 'Color is invalid' : ''}
+                      helperText={fieldState.error ? 'invalid color' : ''}
                       error={!!fieldState.error}
                     />
                   )}
                 />
               </Grid>
-              <Grid item xs={6}>
-                {/* <ColorPicker variant="free" /> */}
-              </Grid>
+              <Grid item xs={6}></Grid>
             </Grid>
             <Button
               type="submit"
