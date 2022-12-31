@@ -324,13 +324,13 @@ export default function App() {
               </Grid>
             </Grid>
 
-            <Grid container justifyContent="center">
+            <Grid container justifyContent="center" spacing={2}>
               <Grid item xs={6} md={3}>
                 <Button
                   type="submit"
                   variant="contained"
                   fullWidth
-                  sx={{ mt: 3, mb: 2 }}
+                  sx={{ mt: 2, mb: 2 }}
                   disabled={disable}
                 >
                   Extend!
