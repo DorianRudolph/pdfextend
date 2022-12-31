@@ -10,6 +10,7 @@ import {
   FormControlLabel,
   Grid,
   InputAdornment,
+  InputBaseComponentProps,
   Link,
   MenuItem,
   TextField,
@@ -19,7 +20,12 @@ import {
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { Controller, FormProvider, SubmitHandler, useForm, useFormContext } from 'react-hook-form';
 import { matchIsValidColor, MuiColorInput } from 'mui-color-input';
-import { MuiFileInput } from 'mui-file-input';
+import AttachFileIcon from '@mui/icons-material/AttachFile';
+// import { MuiFileInput } from 'mui-file-input';
+import { MuiFileInput } from './FileInput';
+import React from 'react';
+import { styled } from '@mui/material/styles';
+import { flexbox } from '@mui/system';
 
 const theme = createTheme();
 
@@ -288,6 +294,27 @@ function App() {
                   )}
                 />
               </Grid>
+
+              <Grid item xs={12}>
+                <MuiFileInput fullWidth></MuiFileInput>
+              </Grid>
+
+              <Grid item xs={4}>
+                <TextField
+                  fullWidth
+                  label="PDF file"
+                  type="file"
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <AttachFileIcon />
+                      </InputAdornment>
+                    ),
+                    inputComponent: TestInput
+                  }}
+                  // inputProps={{ accept: 'application/pdf' }}
+                />
+              </Grid>
             </Grid>
 
             <Button
@@ -323,6 +350,66 @@ function App() {
     </ThemeProvider>
   );
 }
+
+const MyInputComponent = React.forwardRef((props, ref) => {
+  return <div {...props} />;
+});
+
+const MyStyledLabel = styled('label')`
+  width: 100%;
+  position: relative;
+
+  .parentDiv {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    z-index: 2;
+    padding-right: 14px;
+  }
+
+  .childDiv {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    word-wrap: break-word;
+  }
+  input {
+    opacity: 0 !important;
+  }
+`;
+
+const TestInput = React.forwardRef(
+  (props: InputProps, ref: React.ForwardedRef<HTMLInputElement>) => {
+    return (
+      <MyStyledLabel>
+        <input {...props} ref={ref}></input>
+        <div className="parentDiv">
+          <div className="childDiv">
+            hellowasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdasdfsa
+          </div>
+        </div>
+      </MyStyledLabel>
+    );
+  }
+);
+
+const Span = styled('span')(({ theme }) => ({
+  ...theme.typography.body1,
+  backgroundColor: theme.palette.background.paper,
+  padding: theme.spacing(1)
+}));
+
+type InputProps = InputBaseComponentProps & {
+  // text: string;
+  // isPlaceholder: boolean;
+};
 
 function Copyright() {
   return (
