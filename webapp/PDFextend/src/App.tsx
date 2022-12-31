@@ -1,4 +1,4 @@
-import { NoteAdd } from '@mui/icons-material';
+import NoteAddIcon from '@mui/icons-material/NoteAdd';
 import {
   AppBar,
   Box,
@@ -17,22 +17,8 @@ import {
   Typography
 } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import * as React from 'react';
 import { Controller, FormProvider, SubmitHandler, useForm, useFormContext } from 'react-hook-form';
 import { matchIsValidColor, MuiColorInput } from 'mui-color-input';
-
-function Copyright() {
-  return (
-    <Typography variant="body2" color="text.secondary" align="center">
-      {'Copyright © '}
-      <Link color="inherit" href="https://dorianrudolph.com/">
-        Dorian Rudolph
-      </Link>{' '}
-      {new Date().getFullYear()}
-      {'.'}
-    </Typography>
-  );
-}
 
 const theme = createTheme();
 
@@ -50,7 +36,7 @@ class PdfExtendParams {
   unit: string = UNITS[0];
   mirror: boolean = false;
   extraPage: boolean = false;
-  color: string = '#F0F0F0';
+  color: string = '#f0f0f0';
   file: File | null = null;
 }
 const DEFAULT_PARAMS = new PdfExtendParams();
@@ -100,7 +86,7 @@ const NumberInput: React.FC<INumberInputProps> = ({ name, label, min }) => {
   );
 };
 
-export default function PdfExtend() {
+function App() {
   const methods = useForm<PdfExtendParams>({
     mode: 'onBlur',
     defaultValues: DEFAULT_PARAMS
@@ -121,14 +107,12 @@ export default function PdfExtend() {
 
   const disable = Object.keys(errors).length > 0;
 
-  const [color, setColor] = React.useState('#ffffff');
-
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <AppBar position="relative">
         <Toolbar>
-          <NoteAdd sx={{ mr: 2 }} />
+          <NoteAddIcon sx={{ mr: 2 }} />
           <Typography variant="h6" color="inherit" noWrap>
             PDFextend
           </Typography>
@@ -215,6 +199,7 @@ export default function PdfExtend() {
                     <MuiColorInput
                       {...field}
                       format="hex"
+                      inputProps={{ style: { fontFamily: 'monospace' } }}
                       isAlphaHidden={true}
                       label="Line color"
                       fullWidth
@@ -223,6 +208,9 @@ export default function PdfExtend() {
                     />
                   )}
                 />
+              </Grid>
+              <Grid item xs={6}>
+                {/* <ColorPicker variant="free" /> */}
               </Grid>
             </Grid>
             <Button
@@ -258,3 +246,18 @@ export default function PdfExtend() {
     </ThemeProvider>
   );
 }
+
+function Copyright() {
+  return (
+    <Typography variant="body2" color="text.secondary" align="center">
+      {'Copyright © '}
+      <Link color="inherit" href="https://dorianrudolph.com/">
+        Dorian Rudolph
+      </Link>{' '}
+      {new Date().getFullYear()}
+      {'.'}
+    </Typography>
+  );
+}
+
+export default App;
