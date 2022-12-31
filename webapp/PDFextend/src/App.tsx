@@ -1,6 +1,10 @@
 import AttachFileIcon from '@mui/icons-material/AttachFile';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import NoteAddIcon from '@mui/icons-material/NoteAdd';
 import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
   AppBar,
   Box,
   Button,
@@ -18,12 +22,18 @@ import {
   Toolbar,
   Typography
 } from '@mui/material';
+import { amber, teal } from '@mui/material/colors';
 import { createTheme, styled, ThemeProvider } from '@mui/material/styles';
 import { matchIsValidColor, MuiColorInput } from 'mui-color-input';
-import React from 'react';
+import React, { Fragment } from 'react';
 import { Controller, FormProvider, SubmitHandler, useForm, useFormContext } from 'react-hook-form';
 
-const theme = createTheme();
+const theme = createTheme({
+  palette: {
+    primary: teal,
+    secondary: amber
+  }
+});
 
 const UNITS = ['mm', 'cm', 'in', 'pt'];
 const GRIDS = ['none', 'squares', 'lines', 'dots'];
@@ -121,7 +131,22 @@ export default function App() {
     saveParams(values);
   };
 
-  const disable = Object.keys(errors).length > 0 || watch('file') === null;
+  const params = watch();
+  let cmdArgs: String[] = ['pdfextend', 'in.pdf', 'out.pdf'];
+  if (params.leftMargin) cmdArgs.push(`--left=${params.leftMargin}`);
+  if (params.rightMargin) cmdArgs.push(`--right=${params.rightMargin}`);
+  if (params.topMargin) cmdArgs.push(`--top=${params.topMargin}`);
+  if (params.bottomMargin) cmdArgs.push(`--bottom=${params.bottomMargin}`);
+  cmdArgs.push(`--spacing=${params.spacing}`);
+  cmdArgs.push(`--line-width=${params.lineWidth}`);
+  cmdArgs.push(`--unit=${params.unit}`);
+  cmdArgs.push(`--grid=${params.grid}`);
+  if (params.extraPage) cmdArgs.push(`--extra-page`);
+  if (params.mirror) cmdArgs.push(`--mirror`);
+  cmdArgs.push(`--color=${params.color}`);
+  const command = cmdArgs.join(' ');
+
+  const disable = Object.keys(errors).length > 0 || params.file === null;
   const lineName = watch('grid') == 'dots' ? 'Dot' : 'Line';
 
   return (
@@ -285,7 +310,7 @@ export default function App() {
                   control={control}
                   render={({ field }) => (
                     <FormControlLabel
-                      label={`Append ${watch('grid') == 'none' ? 'blank' : 'grid'} page`}
+                      label={`Append ${params.grid == 'none' ? 'blank' : 'grid'} page`}
                       control={
                         <Checkbox
                           {...field}
@@ -317,6 +342,29 @@ export default function App() {
             </Grid>
           </Box>
         </FormProvider>
+
+        <Box sx={{ mt: 2 }}>
+          <Accordion>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              aria-controls="panel1a-content"
+              id="panel1a-header"
+            >
+              <Typography>Command line arguments</Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              {/* Don't break arguments when wrapping */}
+              <code>
+                {cmdArgs.map((arg, i) => (
+                  <Fragment>
+                    <span style={{ whiteSpace: 'nowrap' }}>{arg}</span>
+                    {i < cmdArgs.length - 1 && ' '}
+                  </Fragment>
+                ))}
+              </code>
+            </AccordionDetails>
+          </Accordion>
+        </Box>
       </Container>
 
       <Box sx={{ bgcolor: 'background.paper', p: 6 }} component="footer">
