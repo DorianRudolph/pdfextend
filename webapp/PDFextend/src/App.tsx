@@ -106,7 +106,7 @@ function App() {
     console.log('submit', values);
   };
 
-  const disable = Object.keys(errors).length > 0;
+  const disable = Object.keys(errors).length > 0 || watch('file') === null;
   const lineName = watch('grid') == 'dots' ? 'Dot' : 'Line';
 
   return (
@@ -125,6 +125,11 @@ function App() {
         <Typography variant="subtitle1">
           Add margins with grid lines for annotation to any PDF document.
         </Typography>
+        {/* <TextField
+          inputProps={{
+            style: { fontFamily: 'monospace', textOverflow: 'ellipsis', overflow: 'hidden' }
+          }}
+        ></TextField> */}
         <FormProvider {...methods}>
           <Box
             component="form"
@@ -185,6 +190,44 @@ function App() {
               </Grid>
               <Grid item xs={6}>
                 <Controller
+                  name="color"
+                  control={control}
+                  rules={{ validate: matchIsValidColor }}
+                  render={({ field, fieldState }) => (
+                    <MuiColorInput
+                      {...field}
+                      format="hex"
+                      inputProps={{ style: { fontFamily: 'monospace' } }}
+                      isAlphaHidden={true}
+                      label={`${lineName} color`}
+                      fullWidth
+                      helperText={fieldState.error ? 'invalid color' : ''}
+                      error={!!fieldState.error}
+                    />
+                  )}
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <Controller
+                  name="file"
+                  control={control}
+                  render={({ field, fieldState }) => (
+                    <MuiFileInput
+                      {...field}
+                      label="PDF file"
+                      InputProps={{
+                        inputProps: {
+                          accept: '.pdf'
+                        }
+                      }}
+                      helperText={fieldState.error ? 'invalid file' : ''}
+                      error={!!fieldState.error}
+                    />
+                  )}
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <Controller
                   name="mirror"
                   control={control}
                   render={({ field }) => (
@@ -206,28 +249,6 @@ function App() {
                     />
                   )}
                 />
-              </Grid>
-              <Grid item xs={6}>
-                <Controller
-                  name="color"
-                  control={control}
-                  rules={{ validate: matchIsValidColor }}
-                  render={({ field, fieldState }) => (
-                    <MuiColorInput
-                      {...field}
-                      format="hex"
-                      inputProps={{ style: { fontFamily: 'monospace' } }}
-                      isAlphaHidden={true}
-                      label={`${lineName} color`}
-                      fullWidth
-                      helperText={fieldState.error ? 'invalid color' : ''}
-                      error={!!fieldState.error}
-                    />
-                  )}
-                />
-              </Grid>
-              <Grid item xs={6}>
-                <MuiFileInput label="PDF file"></MuiFileInput>
               </Grid>
             </Grid>
             <Button
