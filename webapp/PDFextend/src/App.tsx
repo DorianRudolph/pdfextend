@@ -121,8 +121,8 @@ function App() {
   } = methods;
 
   const onSubmitHandler: SubmitHandler<PdfExtendParams> = (values) => {
-    // console.log('submit', values);
-    console.log('mirror', values.mirror);
+    console.log('submit', values);
+    // console.log('mirror', values.mirror);
     saveParams(values);
   };
 
@@ -230,7 +230,7 @@ function App() {
                 />
               </Grid>
               <Grid item xs={6}>
-                <Controller
+                {/* <Controller
                   name="file"
                   control={control}
                   render={({ field, fieldState }) => {
@@ -251,7 +251,7 @@ function App() {
                       />
                     );
                   }}
-                />
+                /> */}
               </Grid>
 
               <Grid item xs={6}>
@@ -300,19 +300,34 @@ function App() {
               </Grid>
 
               <Grid item xs={4}>
-                <TextField
-                  fullWidth
-                  label="PDF file"
-                  type="file"
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <AttachFileIcon />
-                      </InputAdornment>
-                    ),
-                    inputComponent: TestInput
+                <Controller
+                  name="file"
+                  control={control}
+                  render={({ field }) => {
+                    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+                      field.onChange(event.target.files?.[0] || null);
+                    };
+                    return (
+                      <TextField
+                        fullWidth
+                        onChange={handleChange}
+                        label="PDF file"
+                        type="file"
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <AttachFileIcon />
+                            </InputAdornment>
+                          ),
+                          inputComponent: FileInput
+                        }}
+                        inputProps={{
+                          accept: 'application/pdf',
+                          text: field.value?.name || ''
+                        }}
+                      />
+                    );
                   }}
-                  // inputProps={{ accept: 'application/pdf' }}
                 />
               </Grid>
             </Grid>
@@ -351,11 +366,7 @@ function App() {
   );
 }
 
-const MyInputComponent = React.forwardRef((props, ref) => {
-  return <div {...props} />;
-});
-
-const MyStyledLabel = styled('label')`
+const FileInputLabel = styled('label')`
   width: 100%;
   position: relative;
 
@@ -380,36 +391,26 @@ const MyStyledLabel = styled('label')`
     -webkit-box-orient: vertical;
     word-wrap: break-word;
   }
+
   input {
     opacity: 0 !important;
   }
 `;
 
-const TestInput = React.forwardRef(
-  (props: InputProps, ref: React.ForwardedRef<HTMLInputElement>) => {
+const FileInput = React.forwardRef(
+  (props: InputBaseComponentProps, ref: React.ForwardedRef<HTMLInputElement>) => {
+    const { text, ...restProps } = props;
+    console.log('TestInput', props);
     return (
-      <MyStyledLabel>
-        <input {...props} ref={ref}></input>
+      <FileInputLabel>
+        <input {...restProps} ref={ref}></input>
         <div className="parentDiv">
-          <div className="childDiv">
-            hellowasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdasdfsa
-          </div>
+          <div className="childDiv">{text}</div>
         </div>
-      </MyStyledLabel>
+      </FileInputLabel>
     );
   }
 );
-
-const Span = styled('span')(({ theme }) => ({
-  ...theme.typography.body1,
-  backgroundColor: theme.palette.background.paper,
-  padding: theme.spacing(1)
-}));
-
-type InputProps = InputBaseComponentProps & {
-  // text: string;
-  // isPlaceholder: boolean;
-};
 
 function Copyright() {
   return (
