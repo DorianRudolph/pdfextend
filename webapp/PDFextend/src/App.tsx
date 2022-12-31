@@ -1,3 +1,4 @@
+import AttachFileIcon from '@mui/icons-material/AttachFile';
 import NoteAddIcon from '@mui/icons-material/NoteAdd';
 import {
   AppBar,
@@ -18,14 +19,10 @@ import {
   Typography
 } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { Controller, FormProvider, SubmitHandler, useForm, useFormContext } from 'react-hook-form';
 import { matchIsValidColor, MuiColorInput } from 'mui-color-input';
-import AttachFileIcon from '@mui/icons-material/AttachFile';
-// import { MuiFileInput } from 'mui-file-input';
-import { MuiFileInput } from './FileInput';
-import React from 'react';
+import { Controller, FormProvider, SubmitHandler, useForm, useFormContext } from 'react-hook-form';
 import { styled } from '@mui/material/styles';
-import { flexbox } from '@mui/system';
+import React from 'react';
 
 const theme = createTheme();
 
@@ -122,7 +119,6 @@ function App() {
 
   const onSubmitHandler: SubmitHandler<PdfExtendParams> = (values) => {
     console.log('submit', values);
-    // console.log('mirror', values.mirror);
     saveParams(values);
   };
 
@@ -230,28 +226,43 @@ function App() {
                 />
               </Grid>
               <Grid item xs={6}>
-                {/* <Controller
+                <Controller
                   name="file"
                   control={control}
+                  rules={{
+                    validate: (v) => {
+                      if (v && !v.name.toLowerCase().endsWith('.pdf')) return 'not a PDF';
+                      return true;
+                    }
+                  }}
                   render={({ field, fieldState }) => {
-                    // console.log(field);
+                    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+                      field.onChange(event.target.files?.[0] || null);
+                    };
                     return (
-                      <MuiFileInput //TODO: make summarizing nicer
-                        {...field}
-                        ref={null} //FIXME: workaround for error "Function components cannot be given refs" (https://stackoverflow.com/questions/67877887/react-hook-form-v7-function-components-cannot-be-given-refs-attempts-to-access), component still seems to work
-                        label="PDF file"
-                        InputProps={{
-                          inputProps: {
-                            accept: '.pdf' //TODO: make `accept` a prop for MuiFileInput
-                          }
-                        }}
+                      <TextField
                         fullWidth
-                        helperText={fieldState.error ? 'invalid file' : ''}
+                        onChange={handleChange}
+                        label="PDF file"
+                        type="file"
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <AttachFileIcon />
+                            </InputAdornment>
+                          ),
+                          inputComponent: FileInput
+                        }}
+                        inputProps={{
+                          accept: 'application/pdf',
+                          text: field.value?.name || ''
+                        }}
                         error={!!fieldState.error}
+                        helperText={fieldState.error?.message || ''}
                       />
                     );
                   }}
-                /> */}
+                />
               </Grid>
 
               <Grid item xs={6}>
@@ -259,7 +270,6 @@ function App() {
                   name="mirror"
                   control={control}
                   render={({ field }) => {
-                    // console.log('mirror', field);
                     return (
                       <FormControlLabel
                         label="Mirror margins on even pages"
@@ -292,42 +302,6 @@ function App() {
                       }
                     />
                   )}
-                />
-              </Grid>
-
-              <Grid item xs={12}>
-                <MuiFileInput fullWidth></MuiFileInput>
-              </Grid>
-
-              <Grid item xs={4}>
-                <Controller
-                  name="file"
-                  control={control}
-                  render={({ field }) => {
-                    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-                      field.onChange(event.target.files?.[0] || null);
-                    };
-                    return (
-                      <TextField
-                        fullWidth
-                        onChange={handleChange}
-                        label="PDF file"
-                        type="file"
-                        InputProps={{
-                          startAdornment: (
-                            <InputAdornment position="start">
-                              <AttachFileIcon />
-                            </InputAdornment>
-                          ),
-                          inputComponent: FileInput
-                        }}
-                        inputProps={{
-                          accept: 'application/pdf',
-                          text: field.value?.name || ''
-                        }}
-                      />
-                    );
-                  }}
                 />
               </Grid>
             </Grid>
@@ -400,7 +374,6 @@ const FileInputLabel = styled('label')`
 const FileInput = React.forwardRef(
   (props: InputBaseComponentProps, ref: React.ForwardedRef<HTMLInputElement>) => {
     const { text, ...restProps } = props;
-    console.log('TestInput', props);
     return (
       <FileInputLabel>
         <input {...restProps} ref={ref}></input>
