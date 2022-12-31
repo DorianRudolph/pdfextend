@@ -324,20 +324,17 @@ export default function App() {
               </Grid>
             </Grid>
 
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-              disabled={disable}
-            >
-              Extend!
-            </Button>
-            <Grid container justifyContent="flex-end">
-              <Grid item>
-                <Link href="#" variant="body2">
-                  Already have an account? Sign in
-                </Link>
+            <Grid container justifyContent="center">
+              <Grid item xs={6} md={3}>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  fullWidth
+                  sx={{ mt: 3, mb: 2 }}
+                  disabled={disable}
+                >
+                  Extend!
+                </Button>
               </Grid>
             </Grid>
           </Box>
