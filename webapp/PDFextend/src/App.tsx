@@ -353,7 +353,7 @@ export default function App() {
               {/* Don't break arguments when wrapping */}
               <code>
                 {cmdArgs.map((arg, i) => (
-                  <Fragment>
+                  <Fragment key={i}>
                     <span style={{ whiteSpace: 'nowrap' }}>{arg}</span>
                     {i < cmdArgs.length - 1 && ' '}
                   </Fragment>
