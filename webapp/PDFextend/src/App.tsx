@@ -100,7 +100,6 @@ const NumberInput: React.FC<INumberInputProps> = ({ name, label, min }) => {
 };
 
 function App() {
-  console.log(initialParams);
   const methods = useForm<PdfExtendParams>({
     mode: 'onBlur',
     defaultValues: initialParams
@@ -116,7 +115,8 @@ function App() {
   } = methods;
 
   const onSubmitHandler: SubmitHandler<PdfExtendParams> = (values) => {
-    console.log('submit', values);
+    // console.log('submit', values);
+    console.log('mirror', values.mirror);
     saveParams(values);
   };
 
@@ -166,6 +166,7 @@ function App() {
               <Grid item xs={6} sm={3}>
                 <NumberInput name="bottomMargin" label="Bottom" min={0} />
               </Grid>
+
               <Grid item xs={6} sm={3}>
                 <NumberInput name="spacing" label="Spacing" min={1} />
               </Grid>
@@ -202,6 +203,7 @@ function App() {
                   control={control}
                 />
               </Grid>
+
               <Grid item xs={6}>
                 <Controller
                   name="color"
@@ -226,17 +228,18 @@ function App() {
                   name="file"
                   control={control}
                   render={({ field, fieldState }) => {
-                    console.log(field);
+                    // console.log(field);
                     return (
-                      <MuiFileInput
+                      <MuiFileInput //TODO: make summarizing nicer
                         {...field}
-                        ref={null}
+                        ref={null} //FIXME: workaround for error "Function components cannot be given refs" (https://stackoverflow.com/questions/67877887/react-hook-form-v7-function-components-cannot-be-given-refs-attempts-to-access), component still seems to work
                         label="PDF file"
                         InputProps={{
                           inputProps: {
-                            accept: '.pdf'
+                            accept: '.pdf' //TODO: make `accept` a prop for MuiFileInput
                           }
                         }}
+                        fullWidth
                         helperText={fieldState.error ? 'invalid file' : ''}
                         error={!!fieldState.error}
                       />
@@ -244,16 +247,27 @@ function App() {
                   }}
                 />
               </Grid>
+
               <Grid item xs={6}>
                 <Controller
                   name="mirror"
                   control={control}
-                  render={({ field }) => (
-                    <FormControlLabel
-                      label="Mirror margins on even pages"
-                      control={<Checkbox {...field} />}
-                    />
-                  )}
+                  render={({ field }) => {
+                    // console.log('mirror', field);
+                    return (
+                      <FormControlLabel
+                        label="Mirror margins on even pages"
+                        control={
+                          <Checkbox
+                            {...field}
+                            // workaround from https://stackoverflow.com/questions/68013420/material-ui-checkbox-is-not-working-in-react-hook-form
+                            checked={field.value}
+                            onChange={(e) => field.onChange(e.target.checked)}
+                          />
+                        }
+                      />
+                    );
+                  }}
                 />
               </Grid>
               <Grid item xs={6}>
@@ -263,12 +277,19 @@ function App() {
                   render={({ field }) => (
                     <FormControlLabel
                       label={`Append ${watch('grid') == 'none' ? 'blank' : 'grid'} page`}
-                      control={<Checkbox {...field} />}
+                      control={
+                        <Checkbox
+                          {...field}
+                          checked={field.value}
+                          onChange={(e) => field.onChange(e.target.checked)}
+                        />
+                      }
                     />
                   )}
                 />
               </Grid>
             </Grid>
+
             <Button
               type="submit"
               fullWidth
