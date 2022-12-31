@@ -19,6 +19,7 @@ import {
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { Controller, FormProvider, SubmitHandler, useForm, useFormContext } from 'react-hook-form';
 import { matchIsValidColor, MuiColorInput } from 'mui-color-input';
+import { MuiFileInput } from 'mui-file-input';
 
 const theme = createTheme();
 
@@ -183,12 +184,27 @@ function App() {
                 />
               </Grid>
               <Grid item xs={6}>
-                <FormControlLabel label="Mirror margins on even pages" control={<Checkbox />} />
+                <Controller
+                  name="mirror"
+                  control={control}
+                  render={({ field }) => (
+                    <FormControlLabel
+                      label="Mirror margins on even pages"
+                      control={<Checkbox {...field} />}
+                    />
+                  )}
+                />
               </Grid>
               <Grid item xs={6}>
-                <FormControlLabel
-                  label={`Append ${watch('grid') == 'none' ? 'blank' : 'grid'} page`}
-                  control={<Checkbox />}
+                <Controller
+                  name="extraPage"
+                  control={control}
+                  render={({ field }) => (
+                    <FormControlLabel
+                      label={`Append ${watch('grid') == 'none' ? 'blank' : 'grid'} page`}
+                      control={<Checkbox {...field} />}
+                    />
+                  )}
                 />
               </Grid>
               <Grid item xs={6}>
@@ -210,7 +226,9 @@ function App() {
                   )}
                 />
               </Grid>
-              <Grid item xs={6}></Grid>
+              <Grid item xs={6}>
+                <MuiFileInput label="PDF file"></MuiFileInput>
+              </Grid>
             </Grid>
             <Button
               type="submit"
