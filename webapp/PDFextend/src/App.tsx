@@ -18,11 +18,10 @@ import {
   Toolbar,
   Typography
 } from '@mui/material';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { createTheme, styled, ThemeProvider } from '@mui/material/styles';
 import { matchIsValidColor, MuiColorInput } from 'mui-color-input';
-import { Controller, FormProvider, SubmitHandler, useForm, useFormContext } from 'react-hook-form';
-import { styled } from '@mui/material/styles';
 import React from 'react';
+import { Controller, FormProvider, SubmitHandler, useForm, useFormContext } from 'react-hook-form';
 
 const theme = createTheme();
 
@@ -102,7 +101,7 @@ const NumberInput: React.FC<INumberInputProps> = ({ name, label, min }) => {
   );
 };
 
-function App() {
+export default function App() {
   const methods = useForm<PdfExtendParams>({
     mode: 'onBlur',
     defaultValues: initialParams
@@ -231,13 +230,12 @@ function App() {
                     }
                   }}
                   render={({ field, fieldState }) => {
-                    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-                      field.onChange(event.target.files?.[0] || null);
-                    };
                     return (
                       <TextField
                         fullWidth
-                        onChange={handleChange}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                          field.onChange(e.target.files?.[0] || null)
+                        }
                         label="PDF file"
                         type="file"
                         InputProps={{
@@ -392,5 +390,3 @@ function Copyright() {
     </Typography>
   );
 }
-
-export default App;
