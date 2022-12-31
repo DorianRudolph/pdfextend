@@ -141,11 +141,6 @@ function App() {
         <Typography variant="subtitle1">
           Add margins with grid lines for annotation to any PDF document.
         </Typography>
-        {/* <TextField
-          inputProps={{
-            style: { fontFamily: 'monospace', textOverflow: 'ellipsis', overflow: 'hidden' }
-          }}
-        ></TextField> */}
         <FormProvider {...methods}>
           <Box
             component="form"
