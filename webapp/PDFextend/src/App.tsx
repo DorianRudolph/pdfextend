@@ -49,6 +49,18 @@ type INumberInputProps = {
   [rest: string]: any;
 };
 
+function saveParams(params: PdfExtendParams) {
+  localStorage.setItem('params', JSON.stringify({ ...params, file: null }));
+}
+
+function loadParams(): PdfExtendParams {
+  let str = localStorage.getItem('params');
+  let parsed = str ? JSON.parse(str) : {};
+  return { ...DEFAULT_PARAMS, ...parsed };
+}
+
+const initialParams = loadParams();
+
 const NumberInput: React.FC<INumberInputProps> = ({ name, label, min }) => {
   const { watch, control } = useFormContext();
   const max = 1e6;
@@ -88,9 +100,10 @@ const NumberInput: React.FC<INumberInputProps> = ({ name, label, min }) => {
 };
 
 function App() {
+  console.log(initialParams);
   const methods = useForm<PdfExtendParams>({
     mode: 'onBlur',
-    defaultValues: DEFAULT_PARAMS
+    defaultValues: initialParams
   });
 
   const {
@@ -104,6 +117,7 @@ function App() {
 
   const onSubmitHandler: SubmitHandler<PdfExtendParams> = (values) => {
     console.log('submit', values);
+    saveParams(values);
   };
 
   const disable = Object.keys(errors).length > 0 || watch('file') === null;
@@ -211,19 +225,23 @@ function App() {
                 <Controller
                   name="file"
                   control={control}
-                  render={({ field, fieldState }) => (
-                    <MuiFileInput
-                      {...field}
-                      label="PDF file"
-                      InputProps={{
-                        inputProps: {
-                          accept: '.pdf'
-                        }
-                      }}
-                      helperText={fieldState.error ? 'invalid file' : ''}
-                      error={!!fieldState.error}
-                    />
-                  )}
+                  render={({ field, fieldState }) => {
+                    console.log(field);
+                    return (
+                      <MuiFileInput
+                        {...field}
+                        ref={null}
+                        label="PDF file"
+                        InputProps={{
+                          inputProps: {
+                            accept: '.pdf'
+                          }
+                        }}
+                        helperText={fieldState.error ? 'invalid file' : ''}
+                        error={!!fieldState.error}
+                      />
+                    );
+                  }}
                 />
               </Grid>
               <Grid item xs={6}>
