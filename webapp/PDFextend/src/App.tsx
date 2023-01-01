@@ -125,11 +125,6 @@ export default function App() {
     formState: { isSubmitSuccessful, errors }
   } = methods;
 
-  const onSubmitHandler: SubmitHandler<PdfExtendParams> = (values) => {
-    console.log('submit', values);
-    saveParams(values);
-  };
-
   const params = watch();
   let cmdArgs: String[] = ['pdfextend', 'in.pdf', 'out.pdf'];
   if (params.leftMargin) cmdArgs.push(`--left=${params.leftMargin}`);
@@ -147,6 +142,14 @@ export default function App() {
 
   const disable = Object.keys(errors).length > 0 || params.file === null;
   const lineName = watch('grid') == 'dots' ? 'Dot' : 'Line';
+
+  const onSubmitHandler: SubmitHandler<PdfExtendParams> = (values) => {
+    console.log('submit', values);
+    saveParams(values);
+    console.log(command);
+  };
+
+  const worker = new Worker('worker.js');
 
   return (
     <ThemeProvider theme={theme}>

@@ -1,0 +1,12 @@
+{
+  "name": "pdfium-lib",
+  "version": "v5407",
+  "files": [
+    "pdfium.wasm",
+    "pdfium.js",
+    "pdfium.d.ts"
+  ],
+  "module": "pdfium.js",
+  "types": "pdfium.d.ts",
+  "sideEffects": false
+}
