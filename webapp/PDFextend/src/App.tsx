@@ -1,19 +1,21 @@
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import NoteAddIcon from '@mui/icons-material/NoteAdd';
 import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
   AppBar,
   Box,
   Button,
   capitalize,
+  Card,
+  CardActionArea,
+  CardContent,
+  CardMedia,
   Checkbox,
   Container,
   CssBaseline,
   FormControlLabel,
   Grid,
   InputAdornment,
+  LinearProgress,
   Link,
   MenuItem,
   TextField,
@@ -23,12 +25,14 @@ import {
 import { amber, teal } from '@mui/material/colors';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { matchIsValidColor, MuiColorInput } from 'mui-color-input';
-import React, { Fragment } from 'react';
+import React, { Fragment, useRef } from 'react';
 import { useCallback } from 'react';
 import { useState } from 'react';
 import { useEffect } from 'react';
 import { Controller, FormProvider, SubmitHandler, useForm, useFormContext } from 'react-hook-form';
 import { FileInput } from './FileInput';
+import { styled } from '@mui/material/styles';
+import { Accordion, AccordionDetails, AccordionSummary } from './GrayAccordion';
 
 const theme = createTheme({
   palette: {
@@ -56,6 +60,22 @@ class PdfExtendParams {
 }
 const DEFAULT_PARAMS = new PdfExtendParams();
 
+function getArgs(params: PdfExtendParams) {
+  let args: String[] = ['pdfextend', 'in.pdf', 'out.pdf'];
+  if (params.leftMargin) args.push(`--left=${params.leftMargin}`);
+  if (params.rightMargin) args.push(`--right=${params.rightMargin}`);
+  if (params.topMargin) args.push(`--top=${params.topMargin}`);
+  if (params.bottomMargin) args.push(`--bottom=${params.bottomMargin}`);
+  args.push(`--spacing=${params.spacing}`);
+  args.push(`--line-width=${params.lineWidth}`);
+  args.push(`--unit=${params.unit}`);
+  if (params.grid != 'none') args.push(`--grid=${params.grid}`);
+  if (params.extraPage) args.push(`--extra-page`);
+  if (params.mirror) args.push(`--mirror`);
+  args.push(`--color=${params.color}`);
+  return args;
+}
+
 type INumberInputProps = {
   name: string;
   label: string;
@@ -74,6 +94,8 @@ function loadParams(): PdfExtendParams {
 }
 
 const initialParams = loadParams();
+
+const condShow = (pred: any) => (pred ? {} : { display: 'none' });
 
 const NumberInput: React.FC<INumberInputProps> = ({ name, label, min }) => {
   const { watch, control } = useFormContext();
@@ -134,29 +156,20 @@ export default function App() {
   } = methods;
 
   const params = watch();
-  let cmdArgs: String[] = ['pdfextend', 'in.pdf', 'out.pdf'];
-  if (params.leftMargin) cmdArgs.push(`--left=${params.leftMargin}`);
-  if (params.rightMargin) cmdArgs.push(`--right=${params.rightMargin}`);
-  if (params.topMargin) cmdArgs.push(`--top=${params.topMargin}`);
-  if (params.bottomMargin) cmdArgs.push(`--bottom=${params.bottomMargin}`);
-  cmdArgs.push(`--spacing=${params.spacing}`);
-  cmdArgs.push(`--line-width=${params.lineWidth}`);
-  cmdArgs.push(`--unit=${params.unit}`);
-  if (params.grid != 'none') cmdArgs.push(`--grid=${params.grid}`);
-  if (params.extraPage) cmdArgs.push(`--extra-page`);
-  if (params.mirror) cmdArgs.push(`--mirror`);
-  cmdArgs.push(`--color=${params.color}`);
-
-  const disable = Object.keys(errors).length > 0 || params.file === null;
-  const lineName = watch('grid') == 'dots' ? 'Dot' : 'Line';
+  const cmdArgs = getArgs(params);
+  const [waiting, setWaiting] = React.useState(false);
+  const disableExtendButton = Object.keys(errors).length > 0 || params.file === null || waiting;
+  const lineName = params.grid == 'dots' ? 'Dot' : 'Line';
 
   const [workerResponse, setWorkerResponse] = React.useState<WorkerResponse | null>(null);
-  const [waiting, setWaiting] = React.useState(false);
-  const worker = React.useRef<Worker | null>(null);
+  const worker = useRef<Worker | null>(null);
   useEffect(() => () => worker.current?.terminate(), []);
+
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const onSubmitHandler: SubmitHandler<PdfExtendParams> = (values) => {
     console.log('submit', values);
+    setWaiting(true);
     saveParams(values);
     const command = cmdArgs.join(' ');
     console.log(command);
@@ -167,10 +180,20 @@ export default function App() {
     };
     if (!worker.current) {
       worker.current = new Worker('worker.js');
-      worker.current.onmessage = (e) => {
-        console.log('worker message', e.data);
-        setWorkerResponse(e.data);
-        setWaiting(false);
+      worker.current.onmessage = (e: MessageEvent<WorkerResponse>) => {
+        const msg = e.data;
+        if (msg.type == 'extend') {
+          console.log('worker message', msg);
+          setWorkerResponse(msg);
+          setWaiting(false);
+
+          const canvas = canvasRef.current;
+          if (canvas) {
+            canvas.width = msg.preview.width;
+            canvas.height = msg.preview.height;
+            canvas.getContext('2d')?.putImageData(msg.preview, 0, 0);
+          }
+        }
       };
     }
     worker.current.postMessage(msg);
@@ -271,45 +294,6 @@ export default function App() {
                   )}
                 />
               </Grid>
-              {/* <Grid item xs={6}>
-                <Controller
-                  name="file"
-                  control={control}
-                  rules={{
-                    validate: (v) => {
-                      if (v && !v.name.toLowerCase().endsWith('.pdf')) return 'not a PDF';
-                      return true;
-                    }
-                  }}
-                  render={({ field, fieldState }) => {
-                    return (
-                      <TextField
-                        fullWidth
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                          field.onChange(e.target.files?.[0] || null)
-                        }
-                        label="PDF file"
-                        type="file"
-                        InputProps={{
-                          startAdornment: (
-                            <InputAdornment position="start">
-                              <AttachFileIcon />
-                            </InputAdornment>
-                          ),
-                          inputComponent: InputComponent
-                        }}
-                        inputProps={{
-                          accept: 'application/pdf',
-                          text: field.value?.name || ''
-                        }}
-                        error={!!fieldState.error}
-                        helperText={fieldState.error?.message || ''}
-                      />
-                    );
-                  }}
-                />
-              </Grid> */}
-
               <Grid item xs={6}>
                 <Controller
                   name="file"
@@ -383,7 +367,7 @@ export default function App() {
                   variant="contained"
                   fullWidth
                   sx={{ mt: 2, mb: 2 }}
-                  disabled={disable}
+                  disabled={disableExtendButton}
                 >
                   Extend!
                 </Button>
@@ -391,6 +375,25 @@ export default function App() {
             </Grid>
           </Box>
         </FormProvider>
+
+        <Box sx={{ width: '100%', mt: 2, mb: 4, ...condShow(waiting) }}>
+          <LinearProgress color="secondary" />
+        </Box>
+
+        <Card sx={{ width: '100%', mt: 2, mb: 4, boxShadow: 3, ...condShow(workerResponse) }}>
+          <CardActionArea>
+            <CardContent>
+              <Typography variant="body2" color="text.secondary" style={{ wordWrap: 'break-word' }}>
+                Download: {workerResponse?.fileName}
+              </Typography>
+            </CardContent>
+            <CardMedia
+              component="canvas"
+              ref={canvasRef}
+              style={{ width: '100%', height: 'auto' }}
+            />
+          </CardActionArea>
+        </Card>
 
         <Box sx={{ mt: 2 }}>
           <Accordion>

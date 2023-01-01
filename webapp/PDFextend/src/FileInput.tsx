@@ -1,12 +1,7 @@
 import AttachFileIcon from '@mui/icons-material/AttachFile';
-import {
-  InputAdornment,
-  InputBaseComponentProps,
-  styled,
-  TextField,
-  TextFieldProps
-} from '@mui/material';
+import { InputAdornment, InputBaseComponentProps, TextField, TextFieldProps } from '@mui/material';
 import React from 'react';
+import { styled } from '@mui/material/styles';
 
 // super hacky way to get the FileInput to display the file name in at most two lines with ellipsis at overflow
 // parent and child div are needed to get the actual text centered in the TextInput even if we set its display
