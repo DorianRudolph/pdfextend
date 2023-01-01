@@ -1,4 +1,3 @@
-import AttachFileIcon from '@mui/icons-material/AttachFile';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import NoteAddIcon from '@mui/icons-material/NoteAdd';
 import {
@@ -15,7 +14,6 @@ import {
   FormControlLabel,
   Grid,
   InputAdornment,
-  InputBaseComponentProps,
   Link,
   MenuItem,
   TextField,
@@ -23,10 +21,11 @@ import {
   Typography
 } from '@mui/material';
 import { amber, teal } from '@mui/material/colors';
-import { createTheme, styled, ThemeProvider } from '@mui/material/styles';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { matchIsValidColor, MuiColorInput } from 'mui-color-input';
 import React, { Fragment } from 'react';
 import { Controller, FormProvider, SubmitHandler, useForm, useFormContext } from 'react-hook-form';
+import { FileInput } from './FileInput';
 
 const theme = createTheme({
   palette: {
@@ -244,7 +243,7 @@ export default function App() {
                   )}
                 />
               </Grid>
-              <Grid item xs={6}>
+              {/* <Grid item xs={6}>
                 <Controller
                   name="file"
                   control={control}
@@ -269,12 +268,37 @@ export default function App() {
                               <AttachFileIcon />
                             </InputAdornment>
                           ),
-                          inputComponent: FileInput
+                          inputComponent: InputComponent
                         }}
                         inputProps={{
                           accept: 'application/pdf',
                           text: field.value?.name || ''
                         }}
+                        error={!!fieldState.error}
+                        helperText={fieldState.error?.message || ''}
+                      />
+                    );
+                  }}
+                />
+              </Grid> */}
+
+              <Grid item xs={6}>
+                <Controller
+                  name="file"
+                  control={control}
+                  rules={{
+                    validate: (v) => {
+                      if (v && !v.name.toLowerCase().endsWith('.pdf')) return 'not a PDF';
+                      return true;
+                    }
+                  }}
+                  render={({ field, fieldState }) => {
+                    return (
+                      <FileInput
+                        {...field}
+                        fullWidth
+                        label="PDF file"
+                        accept="application/pdf"
                         error={!!fieldState.error}
                         helperText={fieldState.error?.message || ''}
                       />
@@ -377,52 +401,6 @@ export default function App() {
     </ThemeProvider>
   );
 }
-
-const FileInputLabel = styled('label')`
-  width: 100%;
-  position: relative;
-
-  .parentDiv {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    display: flex;
-    align-items: center;
-    z-index: 2;
-    padding-right: 14px;
-  }
-
-  .childDiv {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
-    -webkit-box-orient: vertical;
-    word-wrap: break-word;
-  }
-
-  input {
-    opacity: 0 !important;
-  }
-`;
-
-const FileInput = React.forwardRef(
-  (props: InputBaseComponentProps, ref: React.ForwardedRef<HTMLInputElement>) => {
-    const { text, ...restProps } = props;
-    return (
-      <FileInputLabel>
-        <input {...restProps} ref={ref}></input>
-        <div className="parentDiv">
-          <div className="childDiv">{text}</div>
-        </div>
-      </FileInputLabel>
-    );
-  }
-);
-
 function Copyright() {
   return (
     <Typography variant="body2" color="text.secondary" align="center">
