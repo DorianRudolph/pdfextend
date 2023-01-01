@@ -24,6 +24,9 @@ import { amber, teal } from '@mui/material/colors';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { matchIsValidColor, MuiColorInput } from 'mui-color-input';
 import React, { Fragment } from 'react';
+import { useCallback } from 'react';
+import { useState } from 'react';
+import { useEffect } from 'react';
 import { Controller, FormProvider, SubmitHandler, useForm, useFormContext } from 'react-hook-form';
 import { FileInput } from './FileInput';
 
@@ -110,6 +113,15 @@ const NumberInput: React.FC<INumberInputProps> = ({ name, label, min }) => {
   );
 };
 
+const worker = new Worker('worker.js');
+
+type WorkerResponse = {
+  type: string;
+  file: Blob;
+  fileName: string;
+  preview: ImageData;
+};
+
 export default function App() {
   const methods = useForm<PdfExtendParams>({
     mode: 'onBlur',
@@ -117,12 +129,10 @@ export default function App() {
   });
 
   const {
-    reset,
     handleSubmit,
-    register,
     control,
     watch,
-    formState: { isSubmitSuccessful, errors }
+    formState: { errors }
   } = methods;
 
   const params = watch();
@@ -134,11 +144,10 @@ export default function App() {
   cmdArgs.push(`--spacing=${params.spacing}`);
   cmdArgs.push(`--line-width=${params.lineWidth}`);
   cmdArgs.push(`--unit=${params.unit}`);
-  cmdArgs.push(`--grid=${params.grid}`);
+  if (params.grid != 'none') cmdArgs.push(`--grid=${params.grid}`);
   if (params.extraPage) cmdArgs.push(`--extra-page`);
   if (params.mirror) cmdArgs.push(`--mirror`);
   cmdArgs.push(`--color=${params.color}`);
-  const command = cmdArgs.join(' ');
 
   const disable = Object.keys(errors).length > 0 || params.file === null;
   const lineName = watch('grid') == 'dots' ? 'Dot' : 'Line';
@@ -146,10 +155,26 @@ export default function App() {
   const onSubmitHandler: SubmitHandler<PdfExtendParams> = (values) => {
     console.log('submit', values);
     saveParams(values);
+    const command = cmdArgs.join(' ');
     console.log(command);
+    const msg = {
+      type: 'extend',
+      file: params.file,
+      command: command
+    };
+    worker.postMessage(msg);
   };
 
-  const worker = new Worker('worker.js');
+  const [workerResponse, setWorkerResponse] = React.useState<WorkerResponse | null>(null);
+  const [waiting, setWaiting] = React.useState(false);
+  const handleMessage = useCallback((e: MessageEvent<WorkerResponse>) => {
+    console.log('worker message', e.data);
+    setWorkerResponse(e.data);
+  }, []);
+  useEffect(() => {
+    worker.addEventListener('message', handleMessage);
+    return () => worker.removeEventListener('message', handleMessage);
+  }, [handleMessage]);
 
   return (
     <ThemeProvider theme={theme}>
