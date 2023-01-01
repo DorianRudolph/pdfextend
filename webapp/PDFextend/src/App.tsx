@@ -113,8 +113,6 @@ const NumberInput: React.FC<INumberInputProps> = ({ name, label, min }) => {
   );
 };
 
-const worker = new Worker('worker.js');
-
 type WorkerResponse = {
   type: string;
   file: Blob;
@@ -152,6 +150,11 @@ export default function App() {
   const disable = Object.keys(errors).length > 0 || params.file === null;
   const lineName = watch('grid') == 'dots' ? 'Dot' : 'Line';
 
+  const [workerResponse, setWorkerResponse] = React.useState<WorkerResponse | null>(null);
+  const [waiting, setWaiting] = React.useState(false);
+  const worker = React.useRef<Worker | null>(null);
+  useEffect(() => () => worker.current?.terminate(), []);
+
   const onSubmitHandler: SubmitHandler<PdfExtendParams> = (values) => {
     console.log('submit', values);
     saveParams(values);
@@ -162,19 +165,16 @@ export default function App() {
       file: params.file,
       command: command
     };
-    worker.postMessage(msg);
+    if (!worker.current) {
+      worker.current = new Worker('worker.js');
+      worker.current.onmessage = (e) => {
+        console.log('worker message', e.data);
+        setWorkerResponse(e.data);
+        setWaiting(false);
+      };
+    }
+    worker.current.postMessage(msg);
   };
-
-  const [workerResponse, setWorkerResponse] = React.useState<WorkerResponse | null>(null);
-  const [waiting, setWaiting] = React.useState(false);
-  const handleMessage = useCallback((e: MessageEvent<WorkerResponse>) => {
-    console.log('worker message', e.data);
-    setWorkerResponse(e.data);
-  }, []);
-  useEffect(() => {
-    worker.addEventListener('message', handleMessage);
-    return () => worker.removeEventListener('message', handleMessage);
-  }, [handleMessage]);
 
   return (
     <ThemeProvider theme={theme}>
