@@ -166,6 +166,15 @@ export default function App() {
   useEffect(() => () => worker.current?.terminate(), []);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const preview = workerResponse?.preview;
+    if (canvas && preview) {
+      canvas.width = preview.width;
+      canvas.height = preview.height;
+      canvas.getContext('2d')?.putImageData(preview, 0, 0);
+    }
+  }, [workerResponse]);
 
   const onSubmitHandler: SubmitHandler<PdfExtendParams> = (values) => {
     console.log('submit', values);
@@ -186,13 +195,6 @@ export default function App() {
           console.log('worker message', msg);
           setWorkerResponse(msg);
           setWaiting(false);
-
-          const canvas = canvasRef.current;
-          if (canvas) {
-            canvas.width = msg.preview.width;
-            canvas.height = msg.preview.height;
-            canvas.getContext('2d')?.putImageData(msg.preview, 0, 0);
-          }
         }
       };
     }
@@ -380,10 +382,22 @@ export default function App() {
           <LinearProgress color="secondary" />
         </Box>
 
-        <Card sx={{ width: '100%', mt: 2, mb: 4, boxShadow: 3, ...condShow(workerResponse) }}>
-          <CardActionArea>
+        <Card
+          sx={{
+            width: '100%',
+            mt: 2,
+            mb: 4,
+            backgroundColor: 'rgba(0, 0, 0, .03)',
+            ...condShow(workerResponse)
+          }}
+          elevation={5}
+        >
+          <CardActionArea
+            href={workerResponse ? URL.createObjectURL(workerResponse.file) : ''}
+            download={workerResponse?.fileName || ''}
+          >
             <CardContent>
-              <Typography variant="body2" color="text.secondary" style={{ wordWrap: 'break-word' }}>
+              <Typography variant="body2" style={{ wordWrap: 'break-word' }}>
                 Download: {workerResponse?.fileName}
               </Typography>
             </CardContent>
