@@ -10,3 +10,6 @@ authors = ["Dorian Rudolph <mail@dorianrudolph.com>"]
 [dependencies]
 indicatif = "0.17.2"
 pdfextend-lib = { path = "../pdfextend-lib" }
+
+[profile.release]
+lto = true

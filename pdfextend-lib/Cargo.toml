@@ -9,3 +9,5 @@ clap = { version = "4.0.29", features = ["derive"] }
 # pdfium-render = { git = "https://github.com/ajrcarey/pdfium-render", branch = "master" }
 pdfium-render = "0.7.27"
 
+[profile.release]
+lto = true

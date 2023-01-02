@@ -13,3 +13,6 @@ log = "0.4.17"
 wasm-bindgen = { version = "0.2.83", features = ["enable-interning"] }
 wasm-bindgen-futures = "0.4.33"
 web-sys = { version = "0.3.60", features = ["TextDecoder", "ImageData", "Window", "Response", "Blob"] }
+
+[profile.release]
+lto = true
