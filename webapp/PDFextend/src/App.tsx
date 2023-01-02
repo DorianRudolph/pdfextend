@@ -17,6 +17,7 @@
 */
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import NoteAddIcon from '@mui/icons-material/NoteAdd';
+import GitHubIcon from '@mui/icons-material/GitHub';
 import {
   AppBar,
   Box,
@@ -39,22 +40,18 @@ import {
   Toolbar,
   Typography
 } from '@mui/material';
-import { amber, teal } from '@mui/material/colors';
+import { orange, teal } from '@mui/material/colors';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { matchIsValidColor, MuiColorInput } from 'mui-color-input';
-import React, { Fragment, useRef } from 'react';
-import { useCallback } from 'react';
-import { useState } from 'react';
-import { useEffect } from 'react';
+import React, { Fragment, useEffect, useRef } from 'react';
 import { Controller, FormProvider, SubmitHandler, useForm, useFormContext } from 'react-hook-form';
 import { FileInput } from './FileInput';
-import { styled } from '@mui/material/styles';
 import { Accordion, AccordionDetails, AccordionSummary } from './GrayAccordion';
 
 const theme = createTheme({
   palette: {
     primary: teal,
-    secondary: amber
+    secondary: orange
   }
 });
 
@@ -116,7 +113,7 @@ const condShow = (pred: any) => (pred ? {} : { display: 'none' });
 
 const NumberInput: React.FC<INumberInputProps> = ({ name, label, min }) => {
   const { watch, control } = useFormContext();
-  const max = 1e6;
+  const max = 1e5;
 
   return (
     <Controller
@@ -352,7 +349,7 @@ export default function App() {
                           control={
                             <Checkbox
                               {...field}
-                              // workaround from https://stackoverflow.com/questions/68013420/material-ui-checkbox-is-not-working-in-react-hook-form
+                              // see https://stackoverflow.com/questions/68013420/material-ui-checkbox-is-not-working-in-react-hook-form
                               checked={field.value}
                               onChange={(e) => field.onChange(e.target.checked)}
                             />
@@ -398,72 +395,109 @@ export default function App() {
             </Box>
           </FormProvider>
 
-          <Box sx={{ width: '100%', mt: 2, mb: 4, ...condShow(waiting) }}>
-            <LinearProgress color="secondary" />
-          </Box>
+          <Preview ref={canvasRef} waiting={waiting} workerResponse={workerResponse} />
 
-          <Card
-            sx={{
-              width: '100%',
-              mt: 2,
-              mb: 4,
-              backgroundColor: 'rgba(0, 0, 0, .03)',
-              ...condShow(workerResponse)
-            }}
-            elevation={5}
-          >
-            <CardActionArea
-              href={workerResponse ? URL.createObjectURL(workerResponse.file) : ''}
-              download={workerResponse?.fileName || ''}
-            >
-              <CardContent>
-                <Typography variant="body2" style={{ wordWrap: 'break-word' }}>
-                  Download: {workerResponse?.fileName}
-                </Typography>
-              </CardContent>
-              <CardMedia
-                component="canvas"
-                ref={canvasRef}
-                style={{ width: '100%', height: 'auto' }}
-              />
-            </CardActionArea>
-          </Card>
-
-          <Box sx={{ mt: 2 }}>
-            <Accordion>
-              <AccordionSummary
-                expandIcon={<ExpandMoreIcon />}
-                aria-controls="panel1a-content"
-                id="panel1a-header"
-              >
-                <Typography>Command line arguments</Typography>
-              </AccordionSummary>
-              <AccordionDetails>
-                {/* Don't break arguments when wrapping */}
-                <code>
-                  {cmdArgs.map((arg, i) => (
-                    <Fragment key={i}>
-                      <span style={{ whiteSpace: 'nowrap' }}>{arg}</span>
-                      {i < cmdArgs.length - 1 && ' '}
-                    </Fragment>
-                  ))}
-                </code>
-              </AccordionDetails>
-            </Accordion>
-          </Box>
+          <CommandLineArgs args={cmdArgs} />
         </Container>
 
-        <Box sx={{ bgcolor: 'background.paper', p: 6 }} component="footer">
-          <Typography variant="body2" color="text.secondary" align="center">
-            {'Copyright © '}
-            <Link color="inherit" href="https://dorianrudolph.com/">
-              Dorian Rudolph
-            </Link>{' '}
-            {new Date().getFullYear()}
-            {'.'}
-          </Typography>
-        </Box>
+        <Footer />
       </Box>
     </ThemeProvider>
+  );
+}
+
+const Preview = React.forwardRef(
+  (
+    props: { waiting: boolean; workerResponse: WorkerResponse | null },
+    ref: React.ForwardedRef<HTMLCanvasElement>
+  ) => {
+    const { waiting, workerResponse } = props;
+    return (
+      <Fragment>
+        <Box sx={{ width: '100%', mt: 2, mb: 4, ...condShow(waiting) }}>
+          <LinearProgress color="secondary" />
+        </Box>
+        <Card
+          sx={{
+            width: '100%',
+            mt: 4,
+            mb: 6,
+            backgroundColor: 'rgba(0, 0, 0, .03)',
+            ...condShow(workerResponse)
+          }}
+          elevation={5}
+        >
+          <CardActionArea
+            href={workerResponse ? URL.createObjectURL(workerResponse.file) : ''}
+            download={workerResponse?.fileName || ''}
+          >
+            <CardContent>
+              <Typography variant="body2" style={{ wordWrap: 'break-word' }}>
+                Download: {workerResponse?.fileName}
+              </Typography>
+            </CardContent>
+            <CardMedia component="canvas" ref={ref} style={{ width: '100%', height: 'auto' }} />
+          </CardActionArea>
+        </Card>
+      </Fragment>
+    );
+  }
+);
+
+const CommandLineArgs: React.FC<{ args: String[] }> = ({ args }) => (
+  <Box sx={{ mt: 2 }}>
+    <Accordion>
+      <AccordionSummary
+        expandIcon={<ExpandMoreIcon />}
+        aria-controls="panel1a-content"
+        id="panel1a-header"
+      >
+        <Typography>Command line arguments</Typography>
+      </AccordionSummary>
+      <AccordionDetails>
+        {/* Don't break arguments when wrapping */}
+        <code>
+          {args.map((arg, i) => (
+            <Fragment key={i}>
+              <span style={{ whiteSpace: 'nowrap' }}>{arg}</span>
+              {i < args.length - 1 && ' '}
+            </Fragment>
+          ))}
+        </code>
+      </AccordionDetails>
+    </Accordion>
+  </Box>
+);
+
+function Footer() {
+  return (
+    <Box sx={{ bgcolor: 'background.paper', p: 6 }} component="footer">
+      <Typography variant="body2" color="text.secondary" align="center">
+        {'Copyright © '}
+        <Link color="inherit" href="https://www.dorianrudolph.com/">
+          Dorian Rudolph
+        </Link>{' '}
+        {new Date().getFullYear()}
+        {'.'}
+      </Typography>
+
+      <Typography variant="body2" color="text.secondary" pt={1} align="center">
+        <Link color="inherit" href="https://dorianrudolph.com/">
+          Privacy Policy / Impressum / Legal Notice
+        </Link>
+      </Typography>
+
+      <Typography variant="body2" color="text.secondary" pt={1} align="center">
+        <Link color="inherit" href="https://dorianrudolph.com/">
+          Open Source Licenses
+        </Link>
+      </Typography>
+
+      <Typography variant="body2" color="text.secondary" pt={1} align="center">
+        <Link color="inherit" href="https://github.com/DorianRudolph/pdfextend">
+          <GitHubIcon />
+        </Link>
+      </Typography>
+    </Box>
   );
 }
