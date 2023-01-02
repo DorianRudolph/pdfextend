@@ -204,257 +204,249 @@ export default function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <AppBar position="relative">
-        <Toolbar>
-          <NoteAddIcon sx={{ mr: 2 }} />
-          <Typography variant="h6" color="inherit" noWrap>
-            PDFextend
+
+      {/* Ensure the footer is at the bottom even if window is taller than page content.
+      Main has flexGrow:1 so that it fills the available space. */}
+      <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+        <AppBar position="relative">
+          <Toolbar>
+            <NoteAddIcon sx={{ mr: 2 }} />
+            <Typography variant="h6" color="inherit" noWrap>
+              PDFextend
+            </Typography>
+          </Toolbar>
+        </AppBar>
+
+        <Container sx={{ py: 4, flexGrow: 1 }} maxWidth="md" component="main">
+          <Typography variant="subtitle1">
+            Add margins with grid lines for annotation to any PDF document.
           </Typography>
-        </Toolbar>
-      </AppBar>
+          <FormProvider {...methods}>
+            <Box
+              component="form"
+              sx={{ mt: 3 }}
+              noValidate
+              autoComplete="off"
+              onSubmit={handleSubmit(onSubmitHandler)}
+            >
+              <Grid container spacing={2}>
+                <Grid item xs={6} sm={3}>
+                  <NumberInput name="leftMargin" label="Left" min={0} />
+                </Grid>
+                <Grid item xs={6} sm={3}>
+                  <NumberInput name="rightMargin" label="Right" min={0} />
+                </Grid>
+                <Grid item xs={6} sm={3}>
+                  <NumberInput name="topMargin" label="Top" min={0} />
+                </Grid>
+                <Grid item xs={6} sm={3}>
+                  <NumberInput name="bottomMargin" label="Bottom" min={0} />
+                </Grid>
 
-      <Container sx={{ py: 4 }} maxWidth="md" component="main">
-        <Typography variant="subtitle1">
-          Add margins with grid lines for annotation to any PDF document.
-        </Typography>
-        <FormProvider {...methods}>
-          <Box
-            component="form"
-            sx={{ mt: 3 }}
-            noValidate
-            autoComplete="off"
-            onSubmit={handleSubmit(onSubmitHandler)}
-          >
-            {/* <FormHelperText sx={{ mb: 1 }}>Margins</FormHelperText> */}
-            <Grid container spacing={2}>
-              <Grid item xs={6} sm={3}>
-                <NumberInput name="leftMargin" label="Left" min={0} />
-              </Grid>
-              <Grid item xs={6} sm={3}>
-                <NumberInput name="rightMargin" label="Right" min={0} />
-              </Grid>
-              <Grid item xs={6} sm={3}>
-                <NumberInput name="topMargin" label="Top" min={0} />
-              </Grid>
-              <Grid item xs={6} sm={3}>
-                <NumberInput name="bottomMargin" label="Bottom" min={0} />
-              </Grid>
+                <Grid item xs={6} sm={3}>
+                  <NumberInput name="spacing" label="Spacing" min={1} />
+                </Grid>
+                <Grid item xs={6} sm={3}>
+                  <NumberInput name="lineWidth" label={`${lineName} width`} min={0} />
+                </Grid>
+                <Grid item xs={6} sm={3}>
+                  <Controller
+                    render={({ field }) => (
+                      <TextField {...field} fullWidth label="Grid" select>
+                        {GRIDS.map((grid) => (
+                          <MenuItem value={grid} key={grid}>
+                            {capitalize(grid)}
+                          </MenuItem>
+                        ))}
+                      </TextField>
+                    )}
+                    name="grid"
+                    control={control}
+                  />
+                </Grid>
+                <Grid item xs={6} sm={3}>
+                  <Controller
+                    render={({ field }) => (
+                      <TextField {...field} fullWidth label="Unit" select>
+                        {UNITS.map((unit) => (
+                          <MenuItem value={unit} key={unit}>
+                            {unit}
+                          </MenuItem>
+                        ))}
+                      </TextField>
+                    )}
+                    name="unit"
+                    control={control}
+                  />
+                </Grid>
 
-              <Grid item xs={6} sm={3}>
-                <NumberInput name="spacing" label="Spacing" min={1} />
-              </Grid>
-              <Grid item xs={6} sm={3}>
-                <NumberInput name="lineWidth" label={`${lineName} width`} min={0} />
-              </Grid>
-              <Grid item xs={6} sm={3}>
-                <Controller
-                  render={({ field }) => (
-                    <TextField {...field} fullWidth label="Grid" select>
-                      {GRIDS.map((grid) => (
-                        <MenuItem value={grid} key={grid}>
-                          {capitalize(grid)}
-                        </MenuItem>
-                      ))}
-                    </TextField>
-                  )}
-                  name="grid"
-                  control={control}
-                />
-              </Grid>
-              <Grid item xs={6} sm={3}>
-                <Controller
-                  render={({ field }) => (
-                    <TextField {...field} fullWidth label="Unit" select>
-                      {UNITS.map((unit) => (
-                        <MenuItem value={unit} key={unit}>
-                          {unit}
-                        </MenuItem>
-                      ))}
-                    </TextField>
-                  )}
-                  name="unit"
-                  control={control}
-                />
-              </Grid>
-
-              <Grid item xs={6}>
-                <Controller
-                  name="color"
-                  control={control}
-                  rules={{ validate: matchIsValidColor }}
-                  render={({ field, fieldState }) => (
-                    <MuiColorInput
-                      {...field}
-                      format="hex"
-                      inputProps={{ style: { fontFamily: 'monospace' } }}
-                      isAlphaHidden={true}
-                      label={`${lineName} color`}
-                      fullWidth
-                      helperText={fieldState.error ? 'invalid color' : ''}
-                      error={!!fieldState.error}
-                    />
-                  )}
-                />
-              </Grid>
-              <Grid item xs={6}>
-                <Controller
-                  name="file"
-                  control={control}
-                  rules={{
-                    validate: (v) => {
-                      if (v && !v.name.toLowerCase().endsWith('.pdf')) return 'not a PDF';
-                      return true;
-                    }
-                  }}
-                  render={({ field, fieldState }) => {
-                    return (
-                      <FileInput
+                <Grid item xs={6}>
+                  <Controller
+                    name="color"
+                    control={control}
+                    rules={{ validate: matchIsValidColor }}
+                    render={({ field, fieldState }) => (
+                      <MuiColorInput
                         {...field}
+                        format="hex"
+                        inputProps={{ style: { fontFamily: 'monospace' } }}
+                        isAlphaHidden={true}
+                        label={`${lineName} color`}
                         fullWidth
-                        label="PDF file"
-                        accept="application/pdf"
+                        helperText={fieldState.error ? 'invalid color' : ''}
                         error={!!fieldState.error}
-                        helperText={fieldState.error?.message || ''}
                       />
-                    );
-                  }}
-                />
-              </Grid>
+                    )}
+                  />
+                </Grid>
+                <Grid item xs={6}>
+                  <Controller
+                    name="file"
+                    control={control}
+                    rules={{
+                      validate: (v) => {
+                        if (v && !v.name.toLowerCase().endsWith('.pdf')) return 'not a PDF';
+                        return true;
+                      }
+                    }}
+                    render={({ field, fieldState }) => {
+                      return (
+                        <FileInput
+                          {...field}
+                          fullWidth
+                          label="PDF file"
+                          accept="application/pdf"
+                          error={!!fieldState.error}
+                          helperText={fieldState.error?.message || ''}
+                        />
+                      );
+                    }}
+                  />
+                </Grid>
 
-              <Grid item xs={6}>
-                <Controller
-                  name="mirror"
-                  control={control}
-                  render={({ field }) => {
-                    return (
+                <Grid item xs={6}>
+                  <Controller
+                    name="mirror"
+                    control={control}
+                    render={({ field }) => {
+                      return (
+                        <FormControlLabel
+                          label="Mirror margins on even pages"
+                          control={
+                            <Checkbox
+                              {...field}
+                              // workaround from https://stackoverflow.com/questions/68013420/material-ui-checkbox-is-not-working-in-react-hook-form
+                              checked={field.value}
+                              onChange={(e) => field.onChange(e.target.checked)}
+                            />
+                          }
+                        />
+                      );
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={6}>
+                  <Controller
+                    name="extraPage"
+                    control={control}
+                    render={({ field }) => (
                       <FormControlLabel
-                        label="Mirror margins on even pages"
+                        label={`Append ${params.grid == 'none' ? 'blank' : 'grid'} page`}
                         control={
                           <Checkbox
                             {...field}
-                            // workaround from https://stackoverflow.com/questions/68013420/material-ui-checkbox-is-not-working-in-react-hook-form
                             checked={field.value}
                             onChange={(e) => field.onChange(e.target.checked)}
                           />
                         }
                       />
-                    );
-                  }}
-                />
+                    )}
+                  />
+                </Grid>
               </Grid>
-              <Grid item xs={6}>
-                <Controller
-                  name="extraPage"
-                  control={control}
-                  render={({ field }) => (
-                    <FormControlLabel
-                      label={`Append ${params.grid == 'none' ? 'blank' : 'grid'} page`}
-                      control={
-                        <Checkbox
-                          {...field}
-                          checked={field.value}
-                          onChange={(e) => field.onChange(e.target.checked)}
-                        />
-                      }
-                    />
-                  )}
-                />
-              </Grid>
-            </Grid>
 
-            <Grid container justifyContent="center" spacing={2}>
-              <Grid item xs={6} md={3}>
-                <Button
-                  type="submit"
-                  variant="contained"
-                  fullWidth
-                  sx={{ mt: 2, mb: 2 }}
-                  disabled={disableExtendButton}
-                >
-                  Extend!
-                </Button>
+              <Grid container justifyContent="center" spacing={2}>
+                <Grid item xs={6} md={3}>
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    fullWidth
+                    sx={{ mt: 2, mb: 2 }}
+                    disabled={disableExtendButton}
+                  >
+                    Extend!
+                  </Button>
+                </Grid>
               </Grid>
-            </Grid>
+            </Box>
+          </FormProvider>
+
+          <Box sx={{ width: '100%', mt: 2, mb: 4, ...condShow(waiting) }}>
+            <LinearProgress color="secondary" />
           </Box>
-        </FormProvider>
 
-        <Box sx={{ width: '100%', mt: 2, mb: 4, ...condShow(waiting) }}>
-          <LinearProgress color="secondary" />
-        </Box>
-
-        <Card
-          sx={{
-            width: '100%',
-            mt: 2,
-            mb: 4,
-            backgroundColor: 'rgba(0, 0, 0, .03)',
-            ...condShow(workerResponse)
-          }}
-          elevation={5}
-        >
-          <CardActionArea
-            href={workerResponse ? URL.createObjectURL(workerResponse.file) : ''}
-            download={workerResponse?.fileName || ''}
+          <Card
+            sx={{
+              width: '100%',
+              mt: 2,
+              mb: 4,
+              backgroundColor: 'rgba(0, 0, 0, .03)',
+              ...condShow(workerResponse)
+            }}
+            elevation={5}
           >
-            <CardContent>
-              <Typography variant="body2" style={{ wordWrap: 'break-word' }}>
-                Download: {workerResponse?.fileName}
-              </Typography>
-            </CardContent>
-            <CardMedia
-              component="canvas"
-              ref={canvasRef}
-              style={{ width: '100%', height: 'auto' }}
-            />
-          </CardActionArea>
-        </Card>
-
-        <Box sx={{ mt: 2 }}>
-          <Accordion>
-            <AccordionSummary
-              expandIcon={<ExpandMoreIcon />}
-              aria-controls="panel1a-content"
-              id="panel1a-header"
+            <CardActionArea
+              href={workerResponse ? URL.createObjectURL(workerResponse.file) : ''}
+              download={workerResponse?.fileName || ''}
             >
-              <Typography>Command line arguments</Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              {/* Don't break arguments when wrapping */}
-              <code>
-                {cmdArgs.map((arg, i) => (
-                  <Fragment key={i}>
-                    <span style={{ whiteSpace: 'nowrap' }}>{arg}</span>
-                    {i < cmdArgs.length - 1 && ' '}
-                  </Fragment>
-                ))}
-              </code>
-            </AccordionDetails>
-          </Accordion>
-        </Box>
-      </Container>
+              <CardContent>
+                <Typography variant="body2" style={{ wordWrap: 'break-word' }}>
+                  Download: {workerResponse?.fileName}
+                </Typography>
+              </CardContent>
+              <CardMedia
+                component="canvas"
+                ref={canvasRef}
+                style={{ width: '100%', height: 'auto' }}
+              />
+            </CardActionArea>
+          </Card>
 
-      <Box sx={{ bgcolor: 'background.paper', p: 6 }} component="footer">
-        <Typography variant="h6" align="center" gutterBottom>
-          Footer
-        </Typography>
-        <Typography variant="subtitle1" align="center" color="text.secondary" component="p">
-          Something here to give the footer a purpose!
-        </Typography>
-        <Copyright />
+          <Box sx={{ mt: 2 }}>
+            <Accordion>
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                aria-controls="panel1a-content"
+                id="panel1a-header"
+              >
+                <Typography>Command line arguments</Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                {/* Don't break arguments when wrapping */}
+                <code>
+                  {cmdArgs.map((arg, i) => (
+                    <Fragment key={i}>
+                      <span style={{ whiteSpace: 'nowrap' }}>{arg}</span>
+                      {i < cmdArgs.length - 1 && ' '}
+                    </Fragment>
+                  ))}
+                </code>
+              </AccordionDetails>
+            </Accordion>
+          </Box>
+        </Container>
+
+        <Box sx={{ bgcolor: 'background.paper', p: 6 }} component="footer">
+          <Typography variant="body2" color="text.secondary" align="center">
+            {'Copyright © '}
+            <Link color="inherit" href="https://dorianrudolph.com/">
+              Dorian Rudolph
+            </Link>{' '}
+            {new Date().getFullYear()}
+            {'.'}
+          </Typography>
+        </Box>
       </Box>
-      {/* End footer */}
     </ThemeProvider>
-  );
-}
-function Copyright() {
-  return (
-    <Typography variant="body2" color="text.secondary" align="center">
-      {'Copyright © '}
-      <Link color="inherit" href="https://dorianrudolph.com/">
-        Dorian Rudolph
-      </Link>{' '}
-      {new Date().getFullYear()}
-      {'.'}
-    </Typography>
   );
 }
