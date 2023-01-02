@@ -179,17 +179,6 @@ export default function App() {
   const worker = useRef<Worker | null>(null);
   useEffect(() => () => worker.current?.terminate(), []);
 
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    const preview = workerResponse?.preview;
-    if (canvas && preview) {
-      canvas.width = preview.width;
-      canvas.height = preview.height;
-      canvas.getContext('2d')?.putImageData(preview, 0, 0);
-    }
-  }, [workerResponse]);
-
   const onSubmitHandler: SubmitHandler<PdfExtendParams> = (values) => {
     console.log('submit', values);
     setWaiting(true);
@@ -395,7 +384,7 @@ export default function App() {
             </Box>
           </FormProvider>
 
-          <Preview ref={canvasRef} waiting={waiting} workerResponse={workerResponse} />
+          <Preview waiting={waiting} workerResponse={workerResponse} />
 
           <CommandLineArgs args={cmdArgs} />
         </Container>
@@ -406,43 +395,50 @@ export default function App() {
   );
 }
 
-const Preview = React.forwardRef(
-  (
-    props: { waiting: boolean; workerResponse: WorkerResponse | null },
-    ref: React.ForwardedRef<HTMLCanvasElement>
-  ) => {
-    const { waiting, workerResponse } = props;
-    return (
-      <Fragment>
-        <Box sx={{ width: '100%', mt: 2, mb: 4, ...condShow(waiting) }}>
-          <LinearProgress color="secondary" />
-        </Box>
-        <Card
-          sx={{
-            width: '100%',
-            mt: 4,
-            mb: 6,
-            backgroundColor: 'rgba(0, 0, 0, .03)',
-            ...condShow(workerResponse)
-          }}
-          elevation={5}
+const Preview: React.FC<{ waiting: boolean; workerResponse: WorkerResponse | null }> = ({
+  waiting,
+  workerResponse
+}) => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const preview = workerResponse?.preview;
+    if (canvas && preview) {
+      canvas.width = preview.width;
+      canvas.height = preview.height;
+      canvas.getContext('2d')?.putImageData(preview, 0, 0);
+    }
+  }, [workerResponse]);
+  return (
+    <Fragment>
+      <Box sx={{ width: '100%', mt: 2, mb: 4, ...condShow(waiting) }}>
+        <LinearProgress color="secondary" />
+      </Box>
+      <Card
+        sx={{
+          width: '100%',
+          mt: 4,
+          mb: 6,
+          backgroundColor: 'rgba(0, 0, 0, .03)',
+          ...condShow(workerResponse)
+        }}
+        elevation={5}
+      >
+        <CardActionArea
+          href={workerResponse ? URL.createObjectURL(workerResponse.file) : ''}
+          download={workerResponse?.fileName || ''}
         >
-          <CardActionArea
-            href={workerResponse ? URL.createObjectURL(workerResponse.file) : ''}
-            download={workerResponse?.fileName || ''}
-          >
-            <CardContent>
-              <Typography variant="body2" style={{ wordWrap: 'break-word' }}>
-                Download: {workerResponse?.fileName}
-              </Typography>
-            </CardContent>
-            <CardMedia component="canvas" ref={ref} style={{ width: '100%', height: 'auto' }} />
-          </CardActionArea>
-        </Card>
-      </Fragment>
-    );
-  }
-);
+          <CardContent>
+            <Typography variant="body2" style={{ wordWrap: 'break-word' }}>
+              Download: {workerResponse?.fileName}
+            </Typography>
+          </CardContent>
+          <CardMedia component="canvas" ref={canvasRef} style={{ width: '100%', height: 'auto' }} />
+        </CardActionArea>
+      </Card>
+    </Fragment>
+  );
+};
 
 const CommandLineArgs: React.FC<{ args: String[] }> = ({ args }) => (
   <Box sx={{ mt: 2 }}>
