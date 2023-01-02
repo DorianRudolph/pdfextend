@@ -164,7 +164,6 @@ export default function App() {
 
   const {
     handleSubmit,
-    control,
     watch,
     formState: { errors }
   } = methods;
@@ -173,7 +172,6 @@ export default function App() {
   const cmdArgs = getArgs(params);
   const [waiting, setWaiting] = React.useState(false);
   const disableExtendButton = Object.keys(errors).length > 0 || params.file === null || waiting;
-  const lineName = params.grid == 'dots' ? 'Dot' : 'Line';
 
   const [workerResponse, setWorkerResponse] = React.useState<WorkerResponse | null>(null);
   const worker = useRef<Worker | null>(null);
@@ -232,142 +230,7 @@ export default function App() {
               autoComplete="off"
               onSubmit={handleSubmit(onSubmitHandler)}
             >
-              <Grid container spacing={2}>
-                <Grid item xs={6} sm={3}>
-                  <NumberInput name="leftMargin" label="Left" min={0} />
-                </Grid>
-                <Grid item xs={6} sm={3}>
-                  <NumberInput name="rightMargin" label="Right" min={0} />
-                </Grid>
-                <Grid item xs={6} sm={3}>
-                  <NumberInput name="topMargin" label="Top" min={0} />
-                </Grid>
-                <Grid item xs={6} sm={3}>
-                  <NumberInput name="bottomMargin" label="Bottom" min={0} />
-                </Grid>
-
-                <Grid item xs={6} sm={3}>
-                  <NumberInput name="spacing" label="Spacing" min={1} />
-                </Grid>
-                <Grid item xs={6} sm={3}>
-                  <NumberInput name="lineWidth" label={`${lineName} width`} min={0} />
-                </Grid>
-                <Grid item xs={6} sm={3}>
-                  <Controller
-                    render={({ field }) => (
-                      <TextField {...field} fullWidth label="Grid" select>
-                        {GRIDS.map((grid) => (
-                          <MenuItem value={grid} key={grid}>
-                            {capitalize(grid)}
-                          </MenuItem>
-                        ))}
-                      </TextField>
-                    )}
-                    name="grid"
-                    control={control}
-                  />
-                </Grid>
-                <Grid item xs={6} sm={3}>
-                  <Controller
-                    render={({ field }) => (
-                      <TextField {...field} fullWidth label="Unit" select>
-                        {UNITS.map((unit) => (
-                          <MenuItem value={unit} key={unit}>
-                            {unit}
-                          </MenuItem>
-                        ))}
-                      </TextField>
-                    )}
-                    name="unit"
-                    control={control}
-                  />
-                </Grid>
-
-                <Grid item xs={6}>
-                  <Controller
-                    name="color"
-                    control={control}
-                    rules={{ validate: matchIsValidColor }}
-                    render={({ field, fieldState }) => (
-                      <MuiColorInput
-                        {...field}
-                        format="hex"
-                        inputProps={{ style: { fontFamily: 'monospace' } }}
-                        isAlphaHidden={true}
-                        label={`${lineName} color`}
-                        fullWidth
-                        helperText={fieldState.error ? 'invalid color' : ''}
-                        error={!!fieldState.error}
-                      />
-                    )}
-                  />
-                </Grid>
-                <Grid item xs={6}>
-                  <Controller
-                    name="file"
-                    control={control}
-                    rules={{
-                      validate: (v) => {
-                        if (v && !v.name.toLowerCase().endsWith('.pdf')) return 'not a PDF';
-                        return true;
-                      }
-                    }}
-                    render={({ field, fieldState }) => {
-                      return (
-                        <FileInput
-                          {...field}
-                          fullWidth
-                          label="PDF file"
-                          accept="application/pdf"
-                          error={!!fieldState.error}
-                          helperText={fieldState.error?.message || ''}
-                        />
-                      );
-                    }}
-                  />
-                </Grid>
-
-                <Grid item xs={6}>
-                  <Controller
-                    name="mirror"
-                    control={control}
-                    render={({ field }) => {
-                      return (
-                        <FormControlLabel
-                          label="Mirror margins on even pages"
-                          control={
-                            <Checkbox
-                              {...field}
-                              // see https://stackoverflow.com/questions/68013420/material-ui-checkbox-is-not-working-in-react-hook-form
-                              checked={field.value}
-                              onChange={(e) => field.onChange(e.target.checked)}
-                            />
-                          }
-                        />
-                      );
-                    }}
-                  />
-                </Grid>
-                <Grid item xs={6}>
-                  <Controller
-                    name="extraPage"
-                    control={control}
-                    render={({ field }) => (
-                      <FormControlLabel
-                        label={`Append ${params.grid == 'none' ? 'blank' : 'grid'} page`}
-                        control={
-                          <Checkbox
-                            {...field}
-                            checked={field.value}
-                            onChange={(e) => field.onChange(e.target.checked)}
-                          />
-                        }
-                      />
-                    )}
-                  />
-                </Grid>
-              </Grid>
-
+              <FormControls />
               <Grid container justifyContent="center" spacing={2}>
                 <Grid item xs={6} md={3}>
                   <Button
@@ -392,6 +255,149 @@ export default function App() {
         <Footer />
       </Box>
     </ThemeProvider>
+  );
+}
+
+function FormControls() {
+  const { watch, control } = useFormContext();
+  const grid = watch('grid');
+  const lineName = grid == 'dots' ? 'Dot' : 'Line';
+  return (
+    <Grid container spacing={2}>
+      <Grid item xs={6} sm={3}>
+        <NumberInput name="leftMargin" label="Left" min={0} />
+      </Grid>
+      <Grid item xs={6} sm={3}>
+        <NumberInput name="rightMargin" label="Right" min={0} />
+      </Grid>
+      <Grid item xs={6} sm={3}>
+        <NumberInput name="topMargin" label="Top" min={0} />
+      </Grid>
+      <Grid item xs={6} sm={3}>
+        <NumberInput name="bottomMargin" label="Bottom" min={0} />
+      </Grid>
+
+      <Grid item xs={6} sm={3}>
+        <NumberInput name="spacing" label="Spacing" min={1} />
+      </Grid>
+      <Grid item xs={6} sm={3}>
+        <NumberInput name="lineWidth" label={`${lineName} width`} min={0} />
+      </Grid>
+      <Grid item xs={6} sm={3}>
+        <Controller
+          render={({ field }) => (
+            <TextField {...field} fullWidth label="Grid" select>
+              {GRIDS.map((grid) => (
+                <MenuItem value={grid} key={grid}>
+                  {capitalize(grid)}
+                </MenuItem>
+              ))}
+            </TextField>
+          )}
+          name="grid"
+          control={control}
+        />
+      </Grid>
+      <Grid item xs={6} sm={3}>
+        <Controller
+          render={({ field }) => (
+            <TextField {...field} fullWidth label="Unit" select>
+              {UNITS.map((unit) => (
+                <MenuItem value={unit} key={unit}>
+                  {unit}
+                </MenuItem>
+              ))}
+            </TextField>
+          )}
+          name="unit"
+          control={control}
+        />
+      </Grid>
+
+      <Grid item xs={6}>
+        <Controller
+          name="color"
+          control={control}
+          rules={{ validate: matchIsValidColor }}
+          render={({ field, fieldState }) => (
+            <MuiColorInput
+              {...field}
+              format="hex"
+              inputProps={{ style: { fontFamily: 'monospace' } }}
+              isAlphaHidden={true}
+              label={`${lineName} color`}
+              fullWidth
+              helperText={fieldState.error ? 'invalid color' : ''}
+              error={!!fieldState.error}
+            />
+          )}
+        />
+      </Grid>
+      <Grid item xs={6}>
+        <Controller
+          name="file"
+          control={control}
+          rules={{
+            validate: (v) => {
+              if (v && !v.name.toLowerCase().endsWith('.pdf')) return 'not a PDF';
+              return true;
+            }
+          }}
+          render={({ field, fieldState }) => {
+            return (
+              <FileInput
+                {...field}
+                fullWidth
+                label="PDF file"
+                accept="application/pdf"
+                error={!!fieldState.error}
+                helperText={fieldState.error?.message || ''}
+              />
+            );
+          }}
+        />
+      </Grid>
+
+      <Grid item xs={6}>
+        <Controller
+          name="mirror"
+          control={control}
+          render={({ field }) => {
+            return (
+              <FormControlLabel
+                label="Mirror margins on even pages"
+                control={
+                  <Checkbox
+                    {...field}
+                    // see https://stackoverflow.com/questions/68013420/material-ui-checkbox-is-not-working-in-react-hook-form
+                    checked={field.value}
+                    onChange={(e) => field.onChange(e.target.checked)}
+                  />
+                }
+              />
+            );
+          }}
+        />
+      </Grid>
+      <Grid item xs={6}>
+        <Controller
+          name="extraPage"
+          control={control}
+          render={({ field }) => (
+            <FormControlLabel
+              label={`Append ${grid == 'none' ? 'blank' : 'grid'} page`}
+              control={
+                <Checkbox
+                  {...field}
+                  checked={field.value}
+                  onChange={(e) => field.onChange(e.target.checked)}
+                />
+              }
+            />
+          )}
+        />
+      </Grid>
+    </Grid>
   );
 }
 
