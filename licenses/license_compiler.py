@@ -3,6 +3,7 @@ import subprocess
 import json
 import os
 import glob
+from ast import literal_eval
 
 cargo_path = os.path.expanduser(
     '~/.cargo/registry/src/github.com-1ecc6299db9ec823/')
@@ -32,7 +33,7 @@ def normalize_text(text):
     return ' '.join(text.split()).lower()
 
 
-Apache2 = 'Apache-2.0'
+APACHE2 = 'Apache-2.0'
 BSD0 = '0BSD'
 MIT = 'MIT'
 BSD3 = 'BSD-3-Clause'
@@ -40,8 +41,10 @@ ZLIB = 'Zlib'
 UNICODE = 'Unicode-DFS-2016'
 ISC = 'ISC'
 
+ALL_LICENSES = [APACHE2, BSD0, MIT, BSD3, ZLIB, UNICODE, ISC]
+
 MATCHES = {k: [normalize_text(x) for x in v] for (k, v) in {
-    Apache2: ['://www.apache.org/licenses/LICENSE-2.0', '''
+    APACHE2: ['://www.apache.org/licenses/LICENSE-2.0', '''
                                   Apache License
                         Version 2.0, January 2004
     '''],
@@ -112,6 +115,60 @@ fee is hereby granted, provided that the above copyright notice and this permiss
 in all copies.''']
 }.items()}
 
+AND = 'AND'
+OR = 'OR'
+LIC = 'LIC'
+
+
+class LicenseCondition:
+    def __init__(self, typ, conditions):
+        self.typ = typ
+        self.conditions = conditions
+
+    def __str__(self) -> str:
+        if self.typ == LIC:
+            return self.conditions
+        else:
+            return '(' + f' {self.typ} '.join(str(c) for c in self.conditions) + ')'
+
+    @staticmethod
+    def parse_rec(expr):
+        if isinstance(expr, str):
+            return LicenseCondition(LIC, expr)
+        if AND in expr and OR in expr:
+            raise RuntimeError(f"failed to parse {expr}")
+        typ = AND if AND in expr else OR if OR in expr else ''
+        if not typ:
+            raise RuntimeError(f"failed to parse {expr}")
+        conditions = [c for c in expr if c != typ]
+        if typ == OR:
+            conditions.sort(key=lambda x: ALL_LICENSES.index(x)
+                            if x in ALL_LICENSES else 10000)
+        return LicenseCondition(typ, [LicenseCondition.parse_rec(c) for c in conditions])
+
+    @staticmethod
+    def parse(expr):
+        def quote(x):
+            return f',"{x}",' if x in (AND, OR) else \
+                f'"{x}"' if x not in '()' else\
+                x
+        expr = ''.join([quote(x) for x in f'({expr})'.replace(
+            ')', ' ) ').replace('(', ' ( ').split()])
+        print(expr)
+        if expr[0] != '(':
+            expr = '"' + expr
+        if expr[-1] != ')':
+            expr += '"'
+        expr = literal_eval(expr)
+        return LicenseCondition.parse_rec(expr)
+
+    def satisfy(self, list, select):
+        if self.typ == LIC:
+            if self.conditions in list:
+                return {self.conditions}
+        elif self.typ == AND:
+            select = {}
+
 
 def license_heuristic(text):
     t = normalize_text(text)
@@ -147,7 +204,7 @@ def rust(path):
         name = package['name']
         version = package['version']
         license = package['license']
-        print(f"{name}-{version}: {license}")
+        print(f"{name}-{version}: {license} | {LicenseCondition.parse(license)}")
         license_files = {}
         base = f'{cargo_path}{name}-{version}/'
         for n, t in multi_glob_read([f'{base}/LICENSE*', f'{base}/license*', f'{base}/COPYING*', f'{base}/LICENSES/*']).items():
