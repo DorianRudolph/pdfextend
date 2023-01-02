@@ -44,10 +44,13 @@ ISC = 'ISC'
 ALL_LICENSES = [APACHE2, BSD0, MIT, BSD3, ZLIB, UNICODE, ISC]
 
 MATCHES = {k: [normalize_text(x) for x in v] for (k, v) in {
-    APACHE2: ['://www.apache.org/licenses/LICENSE-2.0', '''
+    APACHE2: ['''
                                   Apache License
                         Version 2.0, January 2004
-    '''],
+    ''', '''
+    Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at'''],
     MIT: ['''
 Permission is hereby granted, free of charge, to any
 person obtaining a copy of this software and associated
@@ -162,15 +165,24 @@ class LicenseCondition:
         expr = literal_eval(expr)
         return LicenseCondition.parse_rec(expr)
 
-    def satisfy(self, list, select):
+    def satisfy(self, lics):
         if self.typ == LIC:
-            if self.conditions in list:
-                return {self.conditions}
+            return {self.conditions} if self.conditions in lics else {}
         elif self.typ == AND:
-            select = {}
+            s = set()
+            for c in self.conditions:
+                s.update(c.satisfy(lics))
+            return s
+        elif self.typ == OR:
+            for c in self.conditions:
+                s = c.satisfy(lics)
+                if s:
+                    return s
+            return set()
+        raise RuntimeError('unreachable')
 
 
-def license_heuristic(text):
+def license_heuristic(text, file_name):
     t = normalize_text(text)
     lics = set()
     for (lic, cc) in MATCHES.items():
@@ -178,28 +190,51 @@ def license_heuristic(text):
             if c in t:
                 lics.add(lic)
     if not lics:
-        print('\n\nUNKNOWN')
-        print(text)
-        print('\n\n')
+        print(f'\n\nWARN UNKNOWN {file_name}\n{text}\n\n')
+    if len(lics) > 1:
+        print(f'\n\nWARN INDETERMINATE {file_name}\n{text}\n\n')
     return lics
 
 
 def multi_glob_read(globs):
-    out = {}
+    out = []
     for g in globs:
         for fn in glob.glob(g):
             if not os.path.isfile(fn):
                 continue
             with open(fn) as f:
                 text = f.read()
-                n = fn.rsplit('/', 1)[1]
-                out[n] = text
+                out.append((fn, text))
     return out
+
+
+def strip_file_name(path):
+    return path.rsplit('/', 1)[1]
+
+
+class Package:
+    def __init__(self, name, license, files, include):
+        self.include = include
+        self.name = name
+        self.license = license
+        license_set = {f[0] for f in files}
+        self.use = license.satisfy(license_set)
+        if not self.use:
+            print(f'\n\nWARN UNSAT {name} {license}\n{files}\n\n')
+        for l in self.use:
+            found = []
+            for (_, n, t) in files:
+                if n == l:
+                    found.append((n, t))
+            if len(found) > 1:
+                print(f'\n\nWARN MULTIPLE {name} {license} {l}\n{found}\n\n')
+            self.include.extend(found)
 
 
 def rust(path):
     json_data = subprocess.check_output('cargo license -j'.split(), cwd=path)
     data = json.loads(json_data)
+    packages = []
     for package in data:
         name = package['name']
         version = package['version']
@@ -207,11 +242,17 @@ def rust(path):
         print(f"{name}-{version}: {license} | {LicenseCondition.parse(license)}")
         license_files = {}
         base = f'{cargo_path}{name}-{version}/'
-        for n, t in multi_glob_read([f'{base}/LICENSE*', f'{base}/license*', f'{base}/COPYING*', f'{base}/LICENSES/*']).items():
-            print(n, license_heuristic(t))
-        notice = multi_glob_read([f'{base}/NOTICE*', f'{base}/notice*'])
-        if notice:
-            print('notice', notice)
+        license_files = []
+        include = []
+        for n, t in multi_glob_read([f'{base}/LICENSE*', f'{base}/license*', f'{base}/COPYING*', f'{base}/LICENSES/*']):
+            if 'third-party' in strip_file_name(n).lower():
+                include.append((n, t))
+            else:
+                license_files.append((license_heuristic(n, t), n, t))
+        for n, t in multi_glob_read([f'{base}/NOTICE*', f'{base}/notice*']):
+            include.append(n, t)
+        packages.append(Package(
+            f'{name}-{version}', LicenseCondition.parse(license), license_files, include))
 
         # ok = [l for l in license_names if os.path.exists(
         #     f'{cargo_path}{name}-{version}/{l}')]
