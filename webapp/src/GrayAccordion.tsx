@@ -17,7 +17,7 @@
 */
 
 /*
-  Adapted from https://mui.com/material-ui/react-accordion | https://github.com/mui/material-ui/blob/master/docs/data/material/components/accordion/CustomizedAccordions.tsx
+  Copied from https://mui.com/material-ui/react-accordion | https://github.com/mui/material-ui/blob/master/docs/data/material/components/accordion/CustomizedAccordions.tsx
 
   The MIT License (MIT)
 
@@ -40,7 +40,6 @@
   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   SOFTWARE.
-
 */
 import ArrowForwardIosSharpIcon from '@mui/icons-material/ArrowForwardIosSharp';
 import MuiAccordion, { AccordionProps } from '@mui/material/Accordion';

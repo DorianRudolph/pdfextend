@@ -15,8 +15,9 @@
   You should have received a copy of the GNU Affero General Public License
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
+
 /*
-  Since this may be of independent interest, this component is also licensed under the MIT license:
+  Since this component is useful on its own, this file is also licensed under the MIT license:
 
   The MIT License (MIT)
 

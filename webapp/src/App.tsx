@@ -30,6 +30,11 @@ import {
   Checkbox,
   Container,
   CssBaseline,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   FormControlLabel,
   Grid,
   InputAdornment,
@@ -43,10 +48,13 @@ import {
 import { orange, teal } from '@mui/material/colors';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { matchIsValidColor, MuiColorInput } from 'mui-color-input';
-import React, { Fragment, useEffect, useRef } from 'react';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { Controller, FormProvider, SubmitHandler, useForm, useFormContext } from 'react-hook-form';
 import { FileInput } from './FileInput';
 import { Accordion, AccordionDetails, AccordionSummary } from './GrayAccordion';
+// import MuiMarkdown from 'mui-markdown';
+import PolicyComponent from './policy.md';
+// const md = await import('/policy.md?raw');
 
 const theme = createTheme({
   palette: {
@@ -472,34 +480,83 @@ const CommandLineArgs: React.FC<{ args: String[] }> = ({ args }) => (
 );
 
 function Footer() {
+  const [showPolicy, setShowPolicy] = useState(false);
+  const [showLicense, setShowLicense] = useState(false);
   return (
-    <Box sx={{ bgcolor: 'background.paper', p: 6 }} component="footer">
-      <Typography variant="body2" color="text.secondary" align="center">
-        {'Copyright © '}
-        <Link color="inherit" href="https://www.dorianrudolph.com/">
-          Dorian Rudolph
-        </Link>{' '}
-        {new Date().getFullYear()}
-        {'.'}
-      </Typography>
+    <Fragment>
+      <Box
+        sx={{
+          bgcolor: 'background.paper',
+          p: 6,
+          display: 'flex',
+          alignItems: 'center',
+          flexDirection: 'column'
+        }}
+        component="footer"
+      >
+        <Typography variant="body2" color="text.secondary">
+          {'Copyright © '}
+          <Link color="inherit" href="https://www.dorianrudolph.com/">
+            Dorian Rudolph
+          </Link>{' '}
+          {new Date().getFullYear()}
+          {'.'}
+        </Typography>
 
-      <Typography variant="body2" color="text.secondary" pt={1} align="center">
-        <Link color="inherit" href="https://dorianrudolph.com/">
-          Privacy Policy / Impressum / Legal Notice
+        <Link
+          color="inherit"
+          onClick={() => setShowPolicy(true)}
+          component="button"
+          textAlign="center"
+        >
+          <Typography variant="body2" color="text.secondary" pt={1}>
+            Privacy Policy / Impressum / Legal Notice
+          </Typography>
         </Link>
-      </Typography>
 
-      <Typography variant="body2" color="text.secondary" pt={1} align="center">
-        <Link color="inherit" href="https://dorianrudolph.com/">
-          Open Source Licenses
+        <Link
+          color="inherit"
+          onClick={() => setShowLicense(true)}
+          component="button"
+          textAlign="center"
+        >
+          <Typography variant="body2" color="text.secondary" pt={1}>
+            Open Source Licenses
+          </Typography>
         </Link>
-      </Typography>
 
-      <Typography variant="body2" color="text.secondary" pt={1} align="center">
-        <Link color="inherit" href="https://github.com/DorianRudolph/pdfextend">
-          <GitHubIcon />
-        </Link>
-      </Typography>
-    </Box>
+        <Typography variant="body2" color="text.secondary" pt={1}>
+          <Link color="inherit" href="https://github.com/DorianRudolph/pdfextend">
+            <GitHubIcon />
+          </Link>
+        </Typography>
+      </Box>
+
+      <Dialog open={showPolicy} scroll="body">
+        <DialogTitle>PDFextend Policy</DialogTitle>
+        <DialogContent dividers={true}>
+          <DialogContentText tabIndex={-1}>
+            <Typography variant="body1" color="text.primary">
+              <PolicyComponent />
+            </Typography>
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShowPolicy(false)}>Close</Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={showLicense}>
+        <DialogTitle>Open Source Licenses</DialogTitle>
+        <DialogContent dividers={true}>
+          <DialogContentText tabIndex={-1}>
+            <Typography variant="body1" color="text.primary"></Typography>
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShowLicense(false)}>Close</Button>
+        </DialogActions>
+      </Dialog>
+    </Fragment>
   );
 }
