@@ -2,6 +2,10 @@
 name = "pdfextend-lib"
 version = "0.1.0"
 edition = "2021"
+license = "AGPL-3.0-or-later"
+authors = ["Dorian Rudolph <mail@dorianrudolph.com>"]
+description = "Implementation of PDFextend, a tool to add margins with grid lines for annotation to a PDF document."
+repository = "https://github.com/DorianRudolph/pdfextend"
 
 [dependencies]
 clap = { version = "4.0.29", features = ["derive"] }

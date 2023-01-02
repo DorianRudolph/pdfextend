@@ -2,8 +2,10 @@
 name = "pdfextend"
 version = "0.1.0"
 edition = "2021"
-description = "Command line application to extend PDF documents to provide additional space for annotation"
+license = "AGPL-3.0-or-later"
 authors = ["Dorian Rudolph <mail@dorianrudolph.com>"]
+description = "Command line interface for PDFextend, a tool to add margins with grid lines for annotation to a PDF document."
+repository = "https://github.com/DorianRudolph/pdfextend"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

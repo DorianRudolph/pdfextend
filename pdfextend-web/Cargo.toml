@@ -2,6 +2,10 @@
 name = "pdfextend-web"
 version = "0.1.0"
 edition = "2021"
+license = "AGPL-3.0-or-later"
+authors = ["Dorian Rudolph <mail@dorianrudolph.com>"]
+description = "WASM interface for PDFextend, a tool to add margins with grid lines for annotation to a PDF document."
+repository = "https://github.com/DorianRudolph/pdfextend"
 
 [lib]
 crate-type = ["cdylib"]
