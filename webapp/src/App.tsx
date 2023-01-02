@@ -481,7 +481,9 @@ const CommandLineArgs: React.FC<{ args: String[] }> = ({ args }) => (
 
 function Footer() {
   const [showPolicy, setShowPolicy] = useState(false);
+  const closePolicy = () => setShowPolicy(false);
   const [showLicense, setShowLicense] = useState(false);
+  const closeLicense = () => setShowLicense(false);
   return (
     <Fragment>
       <Box
@@ -532,29 +534,23 @@ function Footer() {
         </Typography>
       </Box>
 
-      <Dialog open={showPolicy} scroll="body">
+      <Dialog open={showPolicy} scroll="body" onClose={closePolicy}>
         <DialogTitle>PDFextend Policy</DialogTitle>
-        <DialogContent dividers={true}>
-          <DialogContentText tabIndex={-1}>
-            <Typography variant="body1" color="text.primary">
-              <PolicyComponent />
-            </Typography>
-          </DialogContentText>
+        <DialogContent dividers={true} tabIndex={-1} color="text.primary">
+          <PolicyComponent />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setShowPolicy(false)}>Close</Button>
+          <Button onClick={closePolicy}>Close</Button>
         </DialogActions>
       </Dialog>
 
-      <Dialog open={showLicense}>
-        <DialogTitle>Open Source Licenses</DialogTitle>
-        <DialogContent dividers={true}>
-          <DialogContentText tabIndex={-1}>
-            <Typography variant="body1" color="text.primary"></Typography>
-          </DialogContentText>
+      <Dialog open={showLicense} scroll="body" onClose={closeLicense}>
+        <DialogTitle>Open source licenses</DialogTitle>
+        <DialogContent dividers={true} tabIndex={-1} color="text.primary">
+          <PolicyComponent />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setShowLicense(false)}>Close</Button>
+          <Button onClick={closeLicense}>Close</Button>
         </DialogActions>
       </Dialog>
     </Fragment>
