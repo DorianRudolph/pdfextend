@@ -37,9 +37,11 @@ BSD0 = '0BSD'
 MIT = 'MIT'
 BSD3 = 'BSD-3-Clause'
 ZLIB = 'Zlib'
+UNICODE = 'Unicode-DFS-2016'
+ISC = 'ISC'
 
 MATCHES = {k: [normalize_text(x) for x in v] for (k, v) in {
-    Apache2: ['https://www.apache.org/licenses/LICENSE-2.0', '''
+    Apache2: ['://www.apache.org/licenses/LICENSE-2.0', '''
                                   Apache License
                         Version 2.0, January 2004
     '''],
@@ -92,7 +94,22 @@ Permission is granted to anyone to use this software for any purpose, including 
 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 
 3. This notice may not be removed or altered from any source distribution.
-''']
+'''],
+    UNICODE: ['''Permission is hereby granted, free of charge, to any person obtaining
+a copy of the Unicode data files and any associated documentation
+(the "Data Files") or Unicode software and any associated documentation
+(the "Software") to deal in the Data Files or Software
+without restriction, including without limitation the rights to use,
+copy, modify, merge, publish, distribute, and/or sell copies of
+the Data Files or Software, and to permit persons to whom the Data Files
+or Software are furnished to do so, provided that either
+(a) this copyright and permission notice appear with all copies
+of the Data Files or Software, or
+(b) this copyright and permission notice appear in associated
+Documentation.'''],
+    ISC: ['''Permission to use, copy, modify, and/or distribute this software for any purpose with or without
+fee is hereby granted, provided that the above copyright notice and this permission notice appear
+in all copies.''']
 }.items()}
 
 
@@ -104,10 +121,23 @@ def license_heuristic(text):
             if c in t:
                 lics.add(lic)
     if not lics:
-        return lics
-    print('\n\nUNKNOWN')
-    print(text)
-    exit(1)
+        print('\n\nUNKNOWN')
+        print(text)
+        print('\n\n')
+    return lics
+
+
+def multi_glob_read(globs):
+    out = {}
+    for g in globs:
+        for fn in glob.glob(g):
+            if not os.path.isfile(fn):
+                continue
+            with open(fn) as f:
+                text = f.read()
+                n = fn.rsplit('/', 1)[1]
+                out[n] = text
+    return out
 
 
 def rust(path):
@@ -120,13 +150,12 @@ def rust(path):
         print(f"{name}-{version}: {license}")
         license_files = {}
         base = f'{cargo_path}{name}-{version}/'
-        for l in glob.glob(f'{base}/LICENSE*') + glob.glob(f'{base}/LICENSES/*'):
-            if not os.path.isfile(l):
-                continue
-            with open(l) as f:
-                text = f.read()
-                print(l.rsplit('/', 1)[1])
-                print(license_heuristic(text))
+        for n, t in multi_glob_read([f'{base}/LICENSE*', f'{base}/license*', f'{base}/COPYING*', f'{base}/LICENSES/*']).items():
+            print(n, license_heuristic(t))
+        notice = multi_glob_read([f'{base}/NOTICE*', f'{base}/notice*'])
+        if notice:
+            print('notice', notice)
+
         # ok = [l for l in license_names if os.path.exists(
         #     f'{cargo_path}{name}-{version}/{l}')]
         # print(ok)
