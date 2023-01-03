@@ -1,5 +1,21 @@
 # PDFextend
 
+PDFextend is a tool to add margins with grid lines for annotation to a PDF document.
+These additional margins provide extra space for annotations in apps without infinite canvas (i.e. almost all of them: Notability, Flexcil, Xournal++, etc.).
+This can be useful when studying research papers or text books.
+The background of generated margins is configurable (empty, horizontal lines, square grid, dots).
+
+PDFextend is available as [web app](https://pdfextend.pages.dev/) (installable as PWA) or command line tool.
+
+![PDFextend webapp screenshot](webapp/screenshot.png)
+
+## Tech
+
+- Core and CLI in Rust.
+- [PDFium](https://pdfium.googlesource.com/pdfium/+/master/README.md) for PDF processing using the [pdfium-render](https://github.com/ajrcarey/pdfium-render) crate.
+- Web app with [MUI](https://mui.com/).
+- Rust code compiled to WASM and used in web worker.
+
 ## CLI Usage
 
 ```
@@ -53,6 +69,6 @@ wrangler2 pages publish dist
 cd licenses/
 python license_aggregator.py > ../webapp/src/license.md
 python license_aggregator.py > out.md
-cat header.md out.md > x.md
+cat header.md out.md > out2.md
 pandoc out2.md --pdf-engine=xelatex -o ../webapp/public/license.pdf
 ```
