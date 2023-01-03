@@ -1,4 +1,21 @@
+'''
+  License aggregator: quick&dirty tool to generate a license report from dependencies
 
+  Copyright (C) 2023  Dorian Rudolph
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as published
+  by the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+'''
 import subprocess
 import json
 import os
@@ -126,7 +143,7 @@ class LicenseCondition:
 
     def __str__(self) -> str:
         if self.typ == LIC:
-            return self.conditions
+            return f'({self.conditions})'
         else:
             return '(' + f' {self.typ} '.join(str(c) for c in self.conditions) + ')'
 
@@ -235,7 +252,7 @@ class Package:
             self.include.append(found[0])
 
     def __str__(self) -> str:
-        files = '\n\n'.join(f'{strip_file_name(f)} {f"({l})" if l else ""}:\n````\n{t}\n````' for (
+        files = '\n\n'.join(f'{strip_file_name(f)}{f" ({l})" if l else ""}:\n````\n{t}\n````' for (
             l, f, t) in self.include)
         return f'### {self.name} {self.license}\n{files}'
 
@@ -317,8 +334,9 @@ def main():
         print(p)
     print('## Cargo packages ')
     print_package('pdfium-render (Apache-2.0)', read_file('LICENSE-APACHE'))
-    rust('../pdfextend-web', ignore={'pdfextend-lib', 'pdfium-render',
-         'pdfextend-web', 'iter_tools-0.1.4'})
+    for p in rust('../pdfextend-web', ignore={'pdfextend-lib', 'pdfium-render',
+                                              'pdfextend-web', 'iter_tools-0.1.4'}):
+        print(p)
 
 
 if __name__ == '__main__':

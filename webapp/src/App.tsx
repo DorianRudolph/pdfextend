@@ -45,6 +45,7 @@ import {
   Toolbar,
   Typography
 } from '@mui/material';
+import { styled } from '@mui/material/styles';
 import { orange, teal } from '@mui/material/colors';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { matchIsValidColor, MuiColorInput } from 'mui-color-input';
@@ -52,9 +53,8 @@ import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { Controller, FormProvider, SubmitHandler, useForm, useFormContext } from 'react-hook-form';
 import { FileInput } from './FileInput';
 import { Accordion, AccordionDetails, AccordionSummary } from './GrayAccordion';
-// import MuiMarkdown from 'mui-markdown';
 import PolicyComponent from './policy.md';
-// const md = await import('/policy.md?raw');
+import LicenseComponent from './license.md';
 
 const theme = createTheme({
   palette: {
@@ -465,7 +465,7 @@ const CommandLineArgs: React.FC<{ args: String[] }> = ({ args }) => (
         <Typography>Command line arguments</Typography>
       </AccordionSummary>
       <AccordionDetails>
-        {/* Don't break arguments when wrapping */}
+        {/* Don't break arguments when wrapping: spans are nowrap, so line breaks only occur between spans */}
         <code>
           {args.map((arg, i) => (
             <Fragment key={i}>
@@ -544,10 +544,12 @@ function Footer() {
         </DialogActions>
       </Dialog>
 
-      <Dialog open={showLicense} scroll="body" onClose={closeLicense}>
+      <Dialog open={showLicense} scroll="body" onClose={closeLicense} maxWidth="md">
         <DialogTitle>Open source licenses</DialogTitle>
         <DialogContent dividers={true} tabIndex={-1} color="text.primary">
-          <PolicyComponent />
+          <MdDiv>
+            <LicenseComponent />
+          </MdDiv>
         </DialogContent>
         <DialogActions>
           <Button onClick={closeLicense}>Close</Button>
@@ -556,3 +558,12 @@ function Footer() {
     </Fragment>
   );
 }
+
+const MdDiv = styled('div')(({ theme }) => ({
+  wordWrap: 'break-word',
+  pre: {
+    border: `1px solid ${theme.palette.divider}`,
+    overflow: 'auto',
+    padding: '10px'
+  }
+}));

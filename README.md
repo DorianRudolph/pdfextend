@@ -43,7 +43,12 @@ wasm-pack build --target no-modules
 cp pkg/pdfextend_web{.js,_bg.wasm} ../webapp/public
 cd ../webapp
 npm install
-npm dev
+npm run dev
 ```
 
-## License
+### License compilation
+
+```sh
+cd licenses/
+python license-aggregator.py > ../webapp/src/license.md
+```

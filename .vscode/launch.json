@@ -1,45 +1,55 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "type": "lldb",
-            "request": "launch",
-            "name": "Debug executable 'pdfextend'",
-            "cargo": {
-                "args": [
-                    "build",
-                    "--bin=pdfextend",
-                    "--package=pdfextend"
-                ],
-                "filter": {
-                    "name": "pdfextend",
-                    "kind": "bin"
-                }
-            },
-            "args": ["a.pdf", "b.pdf"],
-            "cwd": "${workspaceFolder}"
-        },
-        {
-            "type": "lldb",
-            "request": "launch",
-            "name": "Debug unit tests in executable 'pdfextend'",
-            "cargo": {
-                "args": [
-                    "test",
-                    "--no-run",
-                    "--bin=pdfextend",
-                    "--package=pdfextend"
-                ],
-                "filter": {
-                    "name": "pdfextend",
-                    "kind": "bin"
-                }
-            },
-            "args": [],
-            "cwd": "${workspaceFolder}"
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug executable 'pdfextend'",
+      "cargo": {
+        "args": [
+          "build",
+          "--bin=pdfextend",
+          "--package=pdfextend"
+        ],
+        "filter": {
+          "name": "pdfextend",
+          "kind": "bin"
         }
-    ]
+      },
+      "args": [
+        "a.pdf",
+        "b.pdf"
+      ],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug unit tests in executable 'pdfextend'",
+      "cargo": {
+        "args": [
+          "test",
+          "--no-run",
+          "--bin=pdfextend",
+          "--package=pdfextend"
+        ],
+        "filter": {
+          "name": "pdfextend",
+          "kind": "bin"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "Python: license_aggregator.py",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/licenses/license_aggregator.py",
+      "cwd": "${workspaceFolder}/licenses"
+    }
+  ]
 }
