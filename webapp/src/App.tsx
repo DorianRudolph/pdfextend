@@ -53,19 +53,17 @@ import { Controller, FormProvider, SubmitHandler, useForm, useFormContext } from
 import { FileInput } from './FileInput';
 import { Accordion, AccordionDetails, AccordionSummary } from './GrayAccordion';
 
-function makeLazyMd(factory: any) {
+function makeLazy(factory: any) {
   const Lazy = React.lazy(factory);
   return () => (
     <Suspense fallback={<CircularProgress />}>
-      <MdDiv>
-        <Lazy />
-      </MdDiv>
+      <Lazy />
     </Suspense>
   );
 }
 
-const PolicyComponent = makeLazyMd(() => import('./policy.md'));
-const LicenseComponent = makeLazyMd(() => import('./license.md'));
+const PolicyComponent = makeLazy(() => import('./policy.md'));
+const LicenseComponent = makeLazy(() => import('./license.md'));
 
 const theme = createTheme({
   palette: {
@@ -297,7 +295,7 @@ function FormControls() {
       </Grid>
 
       <Grid item xs={6} sm={3}>
-        <NumberInput name="spacing" label="Spacing" min={1} />
+        <NumberInput name="spacing" label="Spacing" min={0.1} />
       </Grid>
       <Grid item xs={6} sm={3}>
         <NumberInput name="lineWidth" label={`${lineName} width`} min={0} />
@@ -565,7 +563,9 @@ function Footer() {
       <Dialog open={showLicense} scroll="body" onClose={closeLicense} maxWidth="md">
         <DialogTitle>Open source licenses</DialogTitle>
         <DialogContent dividers={true} tabIndex={-1} color="text.primary">
-          <LicenseComponent />
+          <MdDiv>
+            <LicenseComponent />
+          </MdDiv>
         </DialogContent>
         <DialogActions>
           <Button onClick={closeLicense}>Close</Button>
@@ -577,6 +577,7 @@ function Footer() {
 
 const MdDiv = styled('div')(({ theme }) => ({
   wordWrap: 'break-word',
+  fontSize: '70%',
   pre: {
     border: `1px solid ${theme.palette.divider}`,
     overflow: 'auto',
