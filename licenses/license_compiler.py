@@ -4,29 +4,18 @@ import json
 import os
 import glob
 from ast import literal_eval
+import sys
+
+
+def eprint(*args, **kwargs):
+    print(*args, file=sys.stderr, **kwargs)
+
 
 cargo_path = os.path.expanduser(
     '~/.cargo/registry/src/github.com-1ecc6299db9ec823/')
 
 license_names = ['LICENSE', 'LICENSE-MIT',
                  'LICENSE-APACHE', 'LICENSE.md', 'LICENSE-BSD-3-Clause']
-
-
-def traverse_node_packages(dependencies, out):
-    for (name, data) in dependencies.items():
-        out.append(name + '-' + data['version'])
-        deps = data.get('dependencies')
-        if deps:
-            traverse_node_packages(deps, out)
-
-
-def node(path):
-    json_data = subprocess.check_output(
-        ['npm', 'ls', '-j', '--omit=dev', '--depth=Infinity'], cwd=path)
-    data = json.loads(json_data)
-    package_list = []
-    traverse_node_packages(data['dependencies'], package_list)
-    print('\n'.join(sorted(set(package_list))))
 
 
 def normalize_text(text):
@@ -189,9 +178,9 @@ def license_heuristic(file_name, text):
             if c in t:
                 lics.add(lic)
     if not lics:
-        print(f'\n\nWARN UNKNOWN {file_name}\n{text}\n\n')
+        eprint(f'\n\nWARN UNKNOWN {file_name}\n{text}\n\n')
     if len(lics) > 1:
-        print(f'\n\nWARN INDETERMINATE {file_name}\n{text}\n\n')
+        eprint(f'\n\nWARN INDETERMINATE {file_name}\n{text}\n\n')
     return list(lics)
 
 
@@ -217,17 +206,25 @@ class Package:
         self.name = name
         self.license = license
         license_set = {f[0] for f in files}
-        self.use = license.satisfy(license_set)
-        if not self.use:
-            print(f'\n\nWARN UNSAT {name} {license}\n{files}\n\n')
-        for l in self.use:
+        use = license.satisfy(license_set)
+        self.use = ', '.join(sorted(use))
+        if not use:
+            eprint(f'\n\nWARN UNSAT {name} {license}\n{files}\n\n')
+        for l in use:
             found = []
             for (_, n, t) in files:
                 if n == l:
                     found.append((n, t))
+            if len(found) == 0:
+                eprint(f'\n\nWARN NOTFOUND {name} {license} {l}\n{found}\n')
             if len(found) > 1:
-                print(f'\n\nWARN MULTIPLE {name} {license} {l}\n{found}\n')
+                eprint(f'\n\nWARN MULTIPLE {name} {license} {l}\n{found}\n')
             self.include.extend(found)
+
+    def __str__(self) -> str:
+        files = '\n\n'.join(f'{l} ({f}):\n```\n{t}\n```' for (
+            f, l, t) in self.include)
+        return f'### {self.name} {self.license}\n{files}'
 
 
 def rust(path, ignore=[]):
@@ -242,7 +239,6 @@ def rust(path, ignore=[]):
         if namever in ignore or name in ignore:
             continue
         cond = LicenseCondition.parse(license)
-        print(f"{namever}: {cond}")
         base = f'{cargo_path}{namever}/'
         license_files = []
         include = []
@@ -259,15 +255,38 @@ def rust(path, ignore=[]):
         pack = Package(namever, cond, license_files, include)
         packages.append(pack)
 
-        # ok = [l for l in license_names if os.path.exists(
-        #     f'{cargo_path}{name}-{version}/{l}')]
-        # print(ok)
+    return packages
+
+
+def node(path, ignore=[]):
+    packages = []
+    json_data = subprocess.check_output(
+        ['npx', 'license-checker', '--production', '--json'], cwd=path)
+    data = json.loads(json_data)
+    for name, props in data.items():
+        if name in ignore:
+            continue
+        license = props['licenses']
+        if license == 'UNLICENSED':
+            eprint(f"\n\nWARN UNLICENSED {name}\n{props}\n")
+            continue
+        file_name = props['licenseFile']
+        with open(file_name) as f:
+            text = f.read()
+        cond = LicenseCondition.parse(license)
+        pack = Package(name=name, license=cond, files=[
+                       (license, strip_file_name(file_name), text)], include=[])
+        packages.append(pack)
+    return packages
 
 
 def main():
-    # node('../webapp')
-    rust('../pdfextend-web', {'pdfextend-lib',
-         'pdfextend-web', 'iter_tools-0.1.4'})
+    print('## NPM packages')
+    for p in node('../webapp', ignore=['pdfextend@0.0.0']):
+        print(p)
+    print('## Cargo packages ')
+    # rust('../pdfextend-web', ignore={'pdfextend-lib',
+    #      'pdfextend-web', 'iter_tools-0.1.4'})
 
 
 if __name__ == '__main__':
