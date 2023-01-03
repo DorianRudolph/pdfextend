@@ -23,6 +23,7 @@ def normalize_text(text):
 
 
 APACHE2 = 'Apache-2.0'
+APACHE2LLVM = 'Apache-2.0-WITH-LLVM-exception'
 BSD0 = '0BSD'
 MIT = 'MIT'
 BSD3 = 'BSD-3-Clause'
@@ -32,7 +33,9 @@ ISC = 'ISC'
 
 ALL_LICENSES = [APACHE2, BSD0, MIT, BSD3, ZLIB, UNICODE, ISC]
 
+# TODO: use regexes?
 MATCHES = {k: [normalize_text(x) for x in v] for (k, v) in {
+    APACHE2LLVM: ['''LLVM Exceptions to the Apache 2.0 License'''],
     APACHE2: ['''
                                   Apache License
                         Version 2.0, January 2004
@@ -54,7 +57,11 @@ conditions:
 The above copyright notice and this permission notice
 shall be included in all copies or substantial portions
 of the Software.
-''', 'MIT License'],
+''', '''
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice (including the next paragraph) shall be included in all copies or substantial portions of the Software.
+'''],
     BSD0: ['''
 Permission to use, copy, modify, and/or distribute this software for
 any purpose with or without fee is hereby granted.
@@ -144,8 +151,11 @@ class LicenseCondition:
             return f',"{x}",' if x in (AND, OR) else \
                 f'"{x}"' if x not in '()' else\
                 x
-        expr = ''.join([quote(x) for x in f'({expr})'.replace(
-            ')', ' ) ').replace('(', ' ( ').split()])
+        expr = (f'({expr})'
+                .replace(' WITH ', '-WITH-')
+                .replace(')', ' ) ')
+                .replace('(', ' ( '))
+        expr = ''.join([quote(x) for x in expr.split()])
         if expr[0] != '(':
             expr = '"' + expr
         if expr[-1] != ')':
@@ -177,6 +187,8 @@ def license_heuristic(file_name, text):
         for c in cc:
             if c in t:
                 lics.add(lic)
+    if lics == {APACHE2, APACHE2LLVM}:
+        return [APACHE2LLVM]
     if not lics:
         eprint(f'\n\nWARN UNKNOWN {file_name}\n{text}\n\n')
     if len(lics) > 1:
@@ -212,14 +224,15 @@ class Package:
             eprint(f'\n\nWARN UNSAT {name} {license}\n{files}\n\n')
         for l in use:
             found = []
-            for (_, n, t) in files:
+            for (n, f, t) in files:
                 if n == l:
-                    found.append((n, t))
+                    found.append((n, f, t))
             if len(found) == 0:
                 eprint(f'\n\nWARN NOTFOUND {name} {license} {l}\n{found}\n')
+                continue
             if len(found) > 1:
                 eprint(f'\n\nWARN MULTIPLE {name} {license} {l}\n{found}\n')
-            self.include.extend(found)
+            self.include.append(found[0])
 
     def __str__(self) -> str:
         files = '\n\n'.join(f'{l} ({f}):\n```\n{t}\n```' for (
@@ -242,15 +255,16 @@ def rust(path, ignore=[]):
         base = f'{cargo_path}{namever}/'
         license_files = []
         include = []
-        for n, t in multi_glob_read([f'{base}/LICENSE*', f'{base}/license*', f'{base}/COPYING*', f'{base}/LICENSES/*']):
-            if 'third-party' in strip_file_name(n).lower():
-                include.append((n, t))
+        for f, t in multi_glob_read([f'{base}/LICENSE*', f'{base}/license*', f'{base}/COPYING*', f'{base}/LICENSES/*']):
+            fn = strip_file_name(f).lower()
+            if 'third-party' in fn or fn == 'license-mit-atty':
+                include.append(('THIRD-PARTY', f, t))
             else:
-                h = license_heuristic(n, t)
+                h = license_heuristic(f, t)
                 if len(h) == 1:
-                    license_files.append((h[0], n, t))
-        for n, t in multi_glob_read([f'{base}/NOTICE*', f'{base}/notice*']):
-            include.append((n, t))
+                    license_files.append((h[0], f, t))
+        for f, t in multi_glob_read([f'{base}/NOTICE*', f'{base}/notice*']):
+            include.append(('NOTICE', f, t))
 
         pack = Package(namever, cond, license_files, include)
         packages.append(pack)
@@ -280,13 +294,28 @@ def node(path, ignore=[]):
     return packages
 
 
+def read_file(fn):
+    with open(fn) as f:
+        return f.read()
+
+
+def print_package(name, license):
+    print(f'''### {name}
+```
+{license}
+```
+
+''')
+
+
 def main():
     print('## NPM packages')
     for p in node('../webapp', ignore=['pdfextend@0.0.0']):
         print(p)
     print('## Cargo packages ')
-    # rust('../pdfextend-web', ignore={'pdfextend-lib',
-    #      'pdfextend-web', 'iter_tools-0.1.4'})
+    print_package('pdfium-render (Apache-2.0)', read_file('LICENSE_APACHE'))
+    rust('../pdfextend-web', ignore={'pdfextend-lib', 'pdfium-render'
+         'pdfextend-web', 'iter_tools-0.1.4'})
 
 
 if __name__ == '__main__':
