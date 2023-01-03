@@ -511,7 +511,7 @@ function Footer() {
       <Box
         sx={{
           bgcolor: 'background.paper',
-          p: 6,
+          p: 2,
           display: 'flex',
           alignItems: 'center',
           flexDirection: 'column'
