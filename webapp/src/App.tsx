@@ -16,8 +16,8 @@
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import NoteAddIcon from '@mui/icons-material/NoteAdd';
 import GitHubIcon from '@mui/icons-material/GitHub';
+import NoteAddIcon from '@mui/icons-material/NoteAdd';
 import {
   AppBar,
   Box,
@@ -28,12 +28,12 @@ import {
   CardContent,
   CardMedia,
   Checkbox,
+  CircularProgress,
   Container,
   CssBaseline,
   Dialog,
   DialogActions,
   DialogContent,
-  DialogContentText,
   DialogTitle,
   FormControlLabel,
   Grid,
@@ -45,16 +45,27 @@ import {
   Toolbar,
   Typography
 } from '@mui/material';
-import { styled } from '@mui/material/styles';
 import { orange, teal } from '@mui/material/colors';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { createTheme, styled, ThemeProvider } from '@mui/material/styles';
 import { matchIsValidColor, MuiColorInput } from 'mui-color-input';
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+import React, { Fragment, Suspense, useEffect, useRef, useState } from 'react';
 import { Controller, FormProvider, SubmitHandler, useForm, useFormContext } from 'react-hook-form';
 import { FileInput } from './FileInput';
 import { Accordion, AccordionDetails, AccordionSummary } from './GrayAccordion';
-import PolicyComponent from './policy.md';
-import LicenseComponent from './license.md';
+
+function makeLazyMd(file: string) {
+  const Lazy = React.lazy(() => import(file));
+  return () => (
+    <Suspense fallback={<CircularProgress />}>
+      <MdDiv>
+        <Lazy />
+      </MdDiv>
+    </Suspense>
+  );
+}
+
+const PolicyComponent = makeLazyMd('./policy.md');
+const LicenseComponent = makeLazyMd('./license.md');
 
 const theme = createTheme({
   palette: {
@@ -516,16 +527,23 @@ function Footer() {
           </Typography>
         </Link>
 
-        <Link
-          color="inherit"
-          onClick={() => setShowLicense(true)}
-          component="button"
-          textAlign="center"
-        >
-          <Typography variant="body2" color="text.secondary" pt={1}>
-            Open Source Licenses
-          </Typography>
-        </Link>
+        <Box pt={1}>
+          <Link
+            color="inherit"
+            onClick={() => setShowLicense(true)}
+            component="button"
+            sx={{ verticalAlign: 'baseline' }}
+          >
+            <Typography variant="body2" color="text.secondary" component="span">
+              Open Source Licenses
+            </Typography>
+          </Link>{' '}
+          <Link color="inherit" href="/license.pdf">
+            <Typography variant="body2" color="text.secondary" component={'span'}>
+              (PDF)
+            </Typography>
+          </Link>
+        </Box>
 
         <Typography variant="body2" color="text.secondary" pt={1}>
           <Link color="inherit" href="https://github.com/DorianRudolph/pdfextend">
@@ -547,9 +565,7 @@ function Footer() {
       <Dialog open={showLicense} scroll="body" onClose={closeLicense} maxWidth="md">
         <DialogTitle>Open source licenses</DialogTitle>
         <DialogContent dividers={true} tabIndex={-1} color="text.primary">
-          <MdDiv>
-            <LicenseComponent />
-          </MdDiv>
+          <LicenseComponent />
         </DialogContent>
         <DialogActions>
           <Button onClick={closeLicense}>Close</Button>
