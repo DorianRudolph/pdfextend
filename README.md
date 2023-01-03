@@ -43,7 +43,8 @@ wasm-pack build --target no-modules
 cp pkg/pdfextend_web{.js,_bg.wasm} ../webapp/public
 cd ../webapp
 npm install
-npm run dev
+npm run build
+wrangler2 pages publish dist
 ```
 
 ### License compilation

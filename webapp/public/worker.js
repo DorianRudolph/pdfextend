@@ -16,7 +16,7 @@ const loaded = PDFiumModule().then(async (pdfiumModule) => {
 onmessage = async (e) => {
   await loaded;
   const msg = e.data;
-  console.log('onmessage', msg);
+  // console.log('onmessage', msg);
   if (msg.type == 'extend') {
     let name = msg.file.name.replace(/(\.pdf)?$/, '_ext.pdf');
     const res = await extend_pdf(msg.command, msg.file);

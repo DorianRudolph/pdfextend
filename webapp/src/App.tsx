@@ -19,6 +19,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import NoteAddIcon from '@mui/icons-material/NoteAdd';
 import {
+  Alert,
   AppBar,
   Box,
   Button,
@@ -37,10 +38,13 @@ import {
   DialogTitle,
   FormControlLabel,
   Grid,
+  IconButton,
   InputAdornment,
   LinearProgress,
   Link,
   MenuItem,
+  Snackbar,
+  Stack,
   TextField,
   Toolbar,
   Typography
@@ -52,6 +56,8 @@ import React, { Fragment, Suspense, useEffect, useRef, useState } from 'react';
 import { Controller, FormProvider, SubmitHandler, useForm, useFormContext } from 'react-hook-form';
 import { FileInput } from './FileInput';
 import { Accordion, AccordionDetails, AccordionSummary } from './GrayAccordion';
+import CloseIcon from '@mui/icons-material/Close';
+import zIndex from '@mui/material/styles/zIndex';
 
 function makeLazy(factory: any) {
   const Lazy = React.lazy(factory);
@@ -114,8 +120,15 @@ type INumberInputProps = {
   [rest: string]: any;
 };
 
+let allowLocalStorage = localStorage.getItem('allow') === 'true';
+
+function setAllowLocalStorage() {
+  localStorage.setItem('allow', 'true');
+  allowLocalStorage = true;
+}
+
 function saveParams(params: PdfExtendParams) {
-  localStorage.setItem('params', JSON.stringify({ ...params, file: null }));
+  if (allowLocalStorage) localStorage.setItem('params', JSON.stringify({ ...params, file: null }));
 }
 
 function loadParams(): PdfExtendParams {
@@ -199,7 +212,6 @@ export default function App() {
     setWaiting(true);
     saveParams(values);
     const command = cmdArgs.join(' ');
-    console.log(command);
     const msg = {
       type: 'extend',
       file: params.file,
@@ -210,7 +222,7 @@ export default function App() {
       worker.current.onmessage = (e: MessageEvent<WorkerResponse>) => {
         const msg = e.data;
         if (msg.type == 'extend') {
-          console.log('worker message', msg);
+          // console.log('worker message', msg);
           setWorkerResponse(msg);
           setWaiting(false);
         }
@@ -489,6 +501,7 @@ const CommandLineArgs: React.FC<{ args: String[] }> = ({ args }) => (
 );
 
 function Footer() {
+  const [showInfo, setShowInfo] = useState(true);
   const [showPolicy, setShowPolicy] = useState(false);
   const closePolicy = () => setShowPolicy(false);
   const [showLicense, setShowLicense] = useState(false);
@@ -571,6 +584,8 @@ function Footer() {
           <Button onClick={closeLicense}>Close</Button>
         </DialogActions>
       </Dialog>
+
+      <InfoSnackbar showPolicy={() => setShowPolicy(true)} />
     </Fragment>
   );
 }
@@ -584,3 +599,45 @@ const MdDiv = styled('div')(({ theme }) => ({
     padding: '10px'
   }
 }));
+
+const InfoSnackbar: React.FC<{ showPolicy: () => void }> = ({ showPolicy }) => {
+  const [open, setOpen] = React.useState(!allowLocalStorage);
+
+  const handleClose = (event: React.SyntheticEvent | Event, reason?: string) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setOpen(false);
+  };
+
+  function handleAccept() {
+    setAllowLocalStorage();
+    setOpen(false);
+  }
+
+  const action = (
+    <React.Fragment>
+      <Button color="primary" size="small" onClick={() => showPolicy()} sx={{ px: 1 }}>
+        SEE PRIVACY POLICY
+      </Button>
+      <Button color="secondary" size="small" onClick={handleAccept} sx={{ px: 1 }}>
+        ACCEPT
+      </Button>
+      <IconButton size="small" aria-label="close" color="inherit" onClick={handleClose}>
+        <CloseIcon fontSize="small" />
+      </IconButton>
+    </React.Fragment>
+  );
+
+  return (
+    <Snackbar
+      open={open}
+      anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      onClose={handleClose}
+      message='PDFextend uses "localStorage" to save user preferences. It is hosted by Cloudflare, which may set strictly necessary cookies for security and load balancing.'
+      action={action}
+      sx={{ zIndex: 1250 }}
+    />
+  );
+};
