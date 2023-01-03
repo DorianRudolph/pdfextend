@@ -209,7 +209,7 @@ def multi_glob_read(globs):
 
 
 def strip_file_name(path):
-    return path.rsplit('/', 1)[1]
+    return path.rsplit('/', 1)[-1]
 
 
 class Package:
@@ -235,8 +235,8 @@ class Package:
             self.include.append(found[0])
 
     def __str__(self) -> str:
-        files = '\n\n'.join(f'{l} ({f}):\n```\n{t}\n```' for (
-            f, l, t) in self.include)
+        files = '\n\n'.join(f'{strip_file_name(f)} {f"({l})" if l else ""}:\n````\n{t}\n````' for (
+            l, f, t) in self.include)
         return f'### {self.name} {self.license}\n{files}'
 
 
@@ -258,11 +258,13 @@ def rust(path, ignore=[]):
         for f, t in multi_glob_read([f'{base}/LICENSE*', f'{base}/license*', f'{base}/COPYING*', f'{base}/LICENSES/*']):
             fn = strip_file_name(f).lower()
             if 'third-party' in fn or fn == 'license-mit-atty':
-                include.append(('THIRD-PARTY', f, t))
+                include.append(('', f, t))
             else:
                 h = license_heuristic(f, t)
                 if len(h) == 1:
                     license_files.append((h[0], f, t))
+                else:
+                    include.append(('', f, t))
         for f, t in multi_glob_read([f'{base}/NOTICE*', f'{base}/notice*']):
             include.append(('NOTICE', f, t))
 
@@ -309,12 +311,13 @@ def print_package(name, license):
 
 
 def main():
+    print(read_file('LICENSE-PDFIUM.md'))
     print('## NPM packages')
     for p in node('../webapp', ignore=['pdfextend@0.0.0']):
         print(p)
     print('## Cargo packages ')
-    print_package('pdfium-render (Apache-2.0)', read_file('LICENSE_APACHE'))
-    rust('../pdfextend-web', ignore={'pdfextend-lib', 'pdfium-render'
+    print_package('pdfium-render (Apache-2.0)', read_file('LICENSE-APACHE'))
+    rust('../pdfextend-web', ignore={'pdfextend-lib', 'pdfium-render',
          'pdfextend-web', 'iter_tools-0.1.4'})
 
 
