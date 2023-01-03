@@ -26,7 +26,7 @@ export default defineConfig({
         name: 'PDFextend',
         short_name: 'PDFextend',
         description: 'Add margins with grid lines for annotation to a PDF document.',
-        theme_color: '#ffffff',
+        theme_color: 'teal',
         icons: [
           {
             src: 'pwa-192x192.png',
