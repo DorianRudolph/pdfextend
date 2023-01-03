@@ -281,6 +281,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
 ```
 
 ### libtiff
+
 ```
 LibTIFF license:
 
@@ -307,8 +308,6 @@ LIABILITY, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE
 OF THIS SOFTWARE.
 
 ```
-
-
 
 ### AGG
 
@@ -340,10 +339,10 @@ BigInteger classes that represent nonnegative integers and signed integers,
 respectively.  Most of the C++ arithmetic operators are overloaded for these
 classes, so big-integer calculations are as easy as:
     #include "BigIntegerLibrary.hh"
-    
+
     BigInteger a = 65536;
     cout << (a * a * a * a * a * a * a * a);
-    
+
     (prints 340282366920938463463374607431768211456)
 The code in `sample.cc' demonstrates the most important features of the library.
 To get started quickly, read the code and explanations in that file and run it.
@@ -389,7 +388,6 @@ copyright to it, placing it in the public domain.  The library comes with
 absolutely no warranty.
 ~~~~
 ```
-
 
 ### freetype
 
@@ -552,22 +550,22 @@ Little CMS
 Copyright (c) 1998-2020 Marti Maria Saguer
 
 Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the 
+a copy of this software and associated documentation files (the
 "Software"), to deal in the Software without restriction, including
 without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to 
+distribute, sublicense, and/or sell copies of the Software, and to
 permit persons to whom the Software is furnished to do so, subject
 to the following conditions:
 
-The above copyright notice and this permission notice shall be 
+The above copyright notice and this permission notice shall be
 included in all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF 
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
 IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
 CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ```
 
@@ -575,8 +573,8 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ```
 /*
- * The copyright in this software is being made available under the 2-clauses 
- * BSD License, included below. This software may be subject to other third 
+ * The copyright in this software is being made available under the 2-clauses
+ * BSD License, included below. This software may be subject to other third
  * party and contributor rights, including patent rights, and no such rights
  * are granted under this license.
  *
@@ -587,7 +585,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * Copyright (c) 2005, Herve Drolon, FreeImage Team
  * Copyright (c) 2002-2003, Yannick Verschueren
  * Copyright (c) 2001-2003, David Janssens
- * Copyright (c) 2011-2012, Centre National d'Etudes Spatiales (CNES), France 
+ * Copyright (c) 2011-2012, Centre National d'Etudes Spatiales (CNES), France
  * Copyright (c) 2012, CS Systemes d'Information, France
  *
  * All rights reserved.
@@ -656,6 +654,7 @@ subject to the following restrictions:
     source or altered source distribution.
 
 ```
+
 ## NPM packages
 ### @ampproject/remapping@2.2.0 (Apache-2.0)
 LICENSE (Apache-2.0):
@@ -4545,7 +4544,7 @@ THIS SOFTWARE.
 ```
 
 
-### adler-1.0.2 ((Apache-2.0) OR (0BSD) OR (MIT))
+### adler-1.0.2 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
                               Apache License
@@ -4751,7 +4750,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ````
-### autocfg-1.1.0 ((Apache-2.0) OR (MIT))
+### autocfg-1.1.0 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
                               Apache License
@@ -4991,7 +4990,7 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ````
-### bit_field-0.10.1 ((Apache-2.0) OR (MIT))
+### bit_field-0.10.1 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
                                  Apache License
@@ -5197,7 +5196,7 @@ LICENSE-APACHE (Apache-2.0):
    limitations under the License.
 
 ````
-### bitflags-1.3.2 ((Apache-2.0) OR (MIT))
+### bitflags-1.3.2 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
                               Apache License
@@ -5403,7 +5402,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ````
-### bumpalo-3.11.1 ((Apache-2.0) OR (MIT))
+### bumpalo-3.11.1 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
                               Apache License
@@ -5609,7 +5608,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ````
-### bytemuck-1.12.3 ((Apache-2.0) OR (MIT) OR (Zlib))
+### bytemuck-1.12.3 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
 Apache License
@@ -5675,7 +5674,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ````
-### byteorder-1.4.3 ((MIT) OR (Unlicense))
+### byteorder-1.4.3 (MIT)
 COPYING:
 ````
 This project is dual-licensed under the Unlicense and MIT licenses.
@@ -5739,7 +5738,7 @@ IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 
 ````
-### cexpr-0.6.0 ((Apache-2.0) OR (MIT))
+### cexpr-0.6.0 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
                               Apache License
@@ -5945,7 +5944,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ````
-### cfg-if-1.0.0 ((Apache-2.0) OR (MIT))
+### cfg-if-1.0.0 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
                               Apache License
@@ -6358,7 +6357,7 @@ LICENSE.txt (Apache-2.0):
    limitations under the License.
 
 ````
-### clap-4.0.32 ((Apache-2.0) OR (MIT))
+### clap-4.0.32 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
                                  Apache License
@@ -6564,7 +6563,7 @@ LICENSE-APACHE (Apache-2.0):
    limitations under the License.
 
 ````
-### clap_derive-4.0.21 ((Apache-2.0) OR (MIT))
+### clap_derive-4.0.21 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
                                  Apache License
@@ -6770,7 +6769,7 @@ LICENSE-APACHE (Apache-2.0):
    limitations under the License.
 
 ````
-### clap_lex-0.3.0 ((Apache-2.0) OR (MIT))
+### clap_lex-0.3.0 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
                                  Apache License
@@ -7002,7 +7001,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 ````
-### console_error_panic_hook-0.1.7 ((Apache-2.0) OR (MIT))
+### console_error_panic_hook-0.1.7 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
                               Apache License
@@ -7208,7 +7207,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ````
-### console_log-0.2.0 ((Apache-2.0) OR (MIT))
+### console_log-0.2.0 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
                               Apache License
@@ -7414,7 +7413,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ````
-### crc32fast-1.3.2 ((Apache-2.0) OR (MIT))
+### crc32fast-1.3.2 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
                                  Apache License
@@ -7621,7 +7620,7 @@ LICENSE-APACHE (Apache-2.0):
 
 
 ````
-### crossbeam-channel-0.5.6 ((Apache-2.0) OR (MIT))
+### crossbeam-channel-0.5.6 (Apache-2.0)
 LICENSE-THIRD-PARTY:
 ````
 ===============================================================================
@@ -8425,7 +8424,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ````
-### crossbeam-deque-0.8.2 ((Apache-2.0) OR (MIT))
+### crossbeam-deque-0.8.2 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
                               Apache License
@@ -8631,7 +8630,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ````
-### crossbeam-epoch-0.9.13 ((Apache-2.0) OR (MIT))
+### crossbeam-epoch-0.9.13 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
                               Apache License
@@ -8837,7 +8836,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ````
-### crossbeam-utils-0.8.14 ((Apache-2.0) OR (MIT))
+### crossbeam-utils-0.8.14 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
                               Apache License
@@ -9043,7 +9042,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ````
-### either-1.8.0 ((Apache-2.0) OR (MIT))
+### either-1.8.0 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
                               Apache License
@@ -9286,7 +9285,7 @@ Redistribution and use in source and binary forms, with or without modification,
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ````
-### flate2-1.0.25 ((Apache-2.0) OR (MIT))
+### flate2-1.0.25 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
                               Apache License
@@ -9492,7 +9491,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ````
-### flume-0.10.14 ((Apache-2.0) OR (MIT))
+### flume-0.10.14 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
    Apache License
@@ -9697,7 +9696,7 @@ LICENSE-APACHE (Apache-2.0):
    See the License for the specific language governing permissions and
    limitations under the License.
 ````
-### futures-core-0.3.25 ((Apache-2.0) OR (MIT))
+### futures-core-0.3.25 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
                               Apache License
@@ -9904,7 +9903,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ````
-### futures-sink-0.3.25 ((Apache-2.0) OR (MIT))
+### futures-sink-0.3.25 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
                               Apache License
@@ -10111,7 +10110,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ````
-### getrandom-0.2.8 ((Apache-2.0) OR (MIT))
+### getrandom-0.2.8 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
                               Apache License
@@ -10317,7 +10316,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ````
-### gif-0.11.4 ((Apache-2.0) OR (MIT))
+### gif-0.11.4 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
                               Apache License
@@ -10522,7 +10521,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ````
-### glob-0.3.0 ((Apache-2.0) OR (MIT))
+### glob-0.3.0 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
                               Apache License
@@ -10728,7 +10727,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ````
-### half-2.2.0 ((Apache-2.0) OR (MIT))
+### half-2.2.0 (Apache-2.0)
 LICENSE:
 ````
 MIT OR Apache-2.0
@@ -10812,7 +10811,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ````
-### heck-0.4.0 ((Apache-2.0) OR (MIT))
+### heck-0.4.0 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
                               Apache License
@@ -11043,7 +11042,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ````
-### io-lifetimes-1.0.3 ((Apache-2.0) OR (MIT) OR (Apache-2.0-WITH-LLVM-exception))
+### io-lifetimes-1.0.3 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
                               Apache License
@@ -11305,7 +11304,7 @@ IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 
 ````
-### itertools-0.10.5 ((Apache-2.0) OR (MIT))
+### itertools-0.10.5 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
                               Apache License
@@ -11511,7 +11510,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ````
-### jpeg-decoder-0.3.0 ((Apache-2.0) OR (MIT))
+### jpeg-decoder-0.3.0 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
                               Apache License
@@ -11717,7 +11716,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ````
-### js-sys-0.3.60 ((Apache-2.0) OR (MIT))
+### js-sys-0.3.60 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
                               Apache License
@@ -11923,7 +11922,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ````
-### lazy_static-1.4.0 ((Apache-2.0) OR (MIT))
+### lazy_static-1.4.0 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
                               Apache License
@@ -12129,7 +12128,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ````
-### lazycell-1.3.0 ((Apache-2.0) OR (MIT))
+### lazycell-1.3.0 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
                               Apache License
@@ -12366,7 +12365,7 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ````
-### libc-0.2.139 ((Apache-2.0) OR (MIT))
+### libc-0.2.139 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
                               Apache License
@@ -12564,7 +12563,7 @@ NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE US
 THIS SOFTWARE.
 
 ````
-### lock_api-0.4.9 ((Apache-2.0) OR (MIT))
+### lock_api-0.4.9 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
                               Apache License
@@ -12770,7 +12769,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ````
-### log-0.4.17 ((Apache-2.0) OR (MIT))
+### log-0.4.17 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
                               Apache License
@@ -12976,7 +12975,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ````
-### maybe-owned-0.3.4 ((Apache-2.0) OR (MIT))
+### maybe-owned-0.3.4 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
                               Apache License
@@ -13182,7 +13181,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ````
-### memchr-2.5.0 ((MIT) OR (Unlicense))
+### memchr-2.5.0 (MIT)
 COPYING:
 ````
 This project is dual-licensed under the Unlicense and MIT licenses.
@@ -13239,7 +13238,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ````
-### minimal-lexical-0.2.1 ((Apache-2.0) OR (MIT))
+### minimal-lexical-0.2.1 (Apache-2.0)
 LICENSE.md:
 ````
 Minimal-lexical is dual licensed under the Apache 2.0 license as well as the MIT
@@ -13487,7 +13486,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ````
-### miniz_oxide-0.6.2 ((Apache-2.0) OR (MIT) OR (Zlib))
+### miniz_oxide-0.6.2 (Apache-2.0)
 LICENSE-APACHE.md (Apache-2.0):
 ````
 
@@ -13721,7 +13720,7 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ````
-### num-integer-0.1.45 ((Apache-2.0) OR (MIT))
+### num-integer-0.1.45 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
                               Apache License
@@ -13927,7 +13926,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ````
-### num-rational-0.4.1 ((Apache-2.0) OR (MIT))
+### num-rational-0.4.1 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
                               Apache License
@@ -14133,7 +14132,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ````
-### num-traits-0.2.15 ((Apache-2.0) OR (MIT))
+### num-traits-0.2.15 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
                               Apache License
@@ -14339,7 +14338,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ````
-### num_cpus-1.15.0 ((Apache-2.0) OR (MIT))
+### num_cpus-1.15.0 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
                               Apache License
@@ -14545,7 +14544,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ````
-### once_cell-1.17.0 ((Apache-2.0) OR (MIT))
+### once_cell-1.17.0 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
                               Apache License
@@ -14751,7 +14750,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ````
-### os_str_bytes-6.4.1 ((Apache-2.0) OR (MIT))
+### os_str_bytes-6.4.1 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
                                  Apache License
@@ -14957,7 +14956,7 @@ LICENSE-APACHE (Apache-2.0):
    limitations under the License.
 
 ````
-### peeking_take_while-0.1.2 ((Apache-2.0) OR (MIT))
+### peeking_take_while-0.1.2 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
                               Apache License
@@ -15163,7 +15162,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ````
-### pin-project-1.0.12 ((Apache-2.0) OR (MIT))
+### pin-project-1.0.12 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
 
@@ -15345,7 +15344,7 @@ LICENSE-APACHE (Apache-2.0):
    END OF TERMS AND CONDITIONS
 
 ````
-### pin-project-internal-1.0.12 ((Apache-2.0) OR (MIT))
+### pin-project-internal-1.0.12 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
 
@@ -15554,7 +15553,7 @@ SOFTWARE.
 
 
 ````
-### png-0.17.7 ((Apache-2.0) OR (MIT))
+### png-0.17.7 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
                               Apache License
@@ -15760,7 +15759,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ````
-### proc-macro-error-1.0.4 ((Apache-2.0) OR (MIT))
+### proc-macro-error-1.0.4 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
                               Apache License
@@ -15966,7 +15965,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ````
-### proc-macro-error-attr-1.0.4 ((Apache-2.0) OR (MIT))
+### proc-macro-error-attr-1.0.4 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
                               Apache License
@@ -16172,7 +16171,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ````
-### proc-macro2-1.0.49 ((Apache-2.0) OR (MIT))
+### proc-macro2-1.0.49 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
                               Apache License
@@ -16378,7 +16377,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ````
-### quote-1.0.23 ((Apache-2.0) OR (MIT))
+### quote-1.0.23 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
                               Apache License
@@ -16584,7 +16583,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ````
-### rayon-1.6.1 ((Apache-2.0) OR (MIT))
+### rayon-1.6.1 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
                               Apache License
@@ -16790,7 +16789,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ````
-### rayon-core-1.10.1 ((Apache-2.0) OR (MIT))
+### rayon-core-1.10.1 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
                               Apache License
@@ -16996,7 +16995,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ````
-### regex-1.7.0 ((Apache-2.0) OR (MIT))
+### regex-1.7.0 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
                               Apache License
@@ -17202,7 +17201,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ````
-### regex-syntax-0.6.28 ((Apache-2.0) OR (MIT))
+### regex-syntax-0.6.28 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
                               Apache License
@@ -17408,7 +17407,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ````
-### rustc-hash-1.1.0 ((Apache-2.0) OR (MIT))
+### rustc-hash-1.1.0 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
                               Apache License
@@ -17640,7 +17639,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 ````
-### scopeguard-1.1.0 ((Apache-2.0) OR (MIT))
+### scopeguard-1.1.0 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
                               Apache License
@@ -17846,7 +17845,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ````
-### shlex-1.1.0 ((Apache-2.0) OR (MIT))
+### shlex-1.1.0 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
 Copyright 2015 Nicholas Allegra (comex).
@@ -17864,7 +17863,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ````
-### smallvec-1.10.0 ((Apache-2.0) OR (MIT))
+### smallvec-1.10.0 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
                               Apache License
@@ -18123,7 +18122,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 ````
-### syn-1.0.107 ((Apache-2.0) OR (MIT))
+### syn-1.0.107 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
                               Apache License
@@ -18329,7 +18328,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ````
-### termcolor-1.1.3 ((MIT) OR (Unlicense))
+### termcolor-1.1.3 (MIT)
 COPYING:
 ````
 This project is dual-licensed under the Unlicense and MIT licenses.
@@ -18363,7 +18362,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 ````
-### threadpool-1.8.1 ((Apache-2.0) OR (MIT))
+### threadpool-1.8.1 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
                               Apache License
@@ -18595,7 +18594,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 ````
-### unicode-ident-1.0.6 (((Apache-2.0) OR (MIT)) AND (Unicode-DFS-2016))
+### unicode-ident-1.0.6 (Apache-2.0, Unicode-DFS-2016)
 LICENSE-UNICODE (Unicode-DFS-2016):
 ````
 UNICODE, INC. LICENSE AGREEMENT - DATA FILES AND SOFTWARE
@@ -18852,7 +18851,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ````
-### utf16string-0.2.0 ((Apache-2.0) OR (MIT))
+### utf16string-0.2.0 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
                               Apache License
@@ -19083,7 +19082,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ````
-### version_check-0.9.4 ((Apache-2.0) OR (MIT))
+### version_check-0.9.4 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
                               Apache License
@@ -19289,7 +19288,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ````
-### wasm-bindgen-0.2.83 ((Apache-2.0) OR (MIT))
+### wasm-bindgen-0.2.83 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
                               Apache License
@@ -19495,7 +19494,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ````
-### wasm-bindgen-backend-0.2.83 ((Apache-2.0) OR (MIT))
+### wasm-bindgen-backend-0.2.83 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
                               Apache License
@@ -19701,7 +19700,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ````
-### wasm-bindgen-futures-0.4.33 ((Apache-2.0) OR (MIT))
+### wasm-bindgen-futures-0.4.33 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
                               Apache License
@@ -19907,7 +19906,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ````
-### wasm-bindgen-macro-0.2.83 ((Apache-2.0) OR (MIT))
+### wasm-bindgen-macro-0.2.83 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
                               Apache License
@@ -20113,7 +20112,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ````
-### wasm-bindgen-macro-support-0.2.83 ((Apache-2.0) OR (MIT))
+### wasm-bindgen-macro-support-0.2.83 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
                               Apache License
@@ -20319,7 +20318,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ````
-### wasm-bindgen-shared-0.2.83 ((Apache-2.0) OR (MIT))
+### wasm-bindgen-shared-0.2.83 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
                               Apache License
@@ -20525,7 +20524,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ````
-### web-sys-0.3.60 ((Apache-2.0) OR (MIT))
+### web-sys-0.3.60 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
                               Apache License
@@ -20731,7 +20730,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ````
-### weezl-0.1.7 ((Apache-2.0) OR (MIT))
+### weezl-0.1.7 (Apache-2.0)
 LICENSE-APACHE (Apache-2.0):
 ````
                               Apache License

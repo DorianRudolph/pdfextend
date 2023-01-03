@@ -254,7 +254,7 @@ class Package:
     def __str__(self) -> str:
         files = '\n\n'.join(f'{strip_file_name(f)}{f" ({l})" if l else ""}:\n````\n{t}\n````' for (
             l, f, t) in self.include)
-        return f'### {self.name} {self.license}\n{files}'
+        return f'### {self.name} ({self.use})\n{files}'
 
 
 def rust(path, ignore=[]):

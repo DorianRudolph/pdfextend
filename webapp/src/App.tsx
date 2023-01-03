@@ -53,8 +53,8 @@ import { Controller, FormProvider, SubmitHandler, useForm, useFormContext } from
 import { FileInput } from './FileInput';
 import { Accordion, AccordionDetails, AccordionSummary } from './GrayAccordion';
 
-function makeLazyMd(file: string) {
-  const Lazy = React.lazy(() => import(file));
+function makeLazyMd(factory: any) {
+  const Lazy = React.lazy(factory);
   return () => (
     <Suspense fallback={<CircularProgress />}>
       <MdDiv>
@@ -64,8 +64,8 @@ function makeLazyMd(file: string) {
   );
 }
 
-const PolicyComponent = makeLazyMd('./policy.md');
-const LicenseComponent = makeLazyMd('./license.md');
+const PolicyComponent = makeLazyMd(() => import('./policy.md'));
+const LicenseComponent = makeLazyMd(() => import('./license.md'));
 
 const theme = createTheme({
   palette: {

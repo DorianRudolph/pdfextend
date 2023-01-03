@@ -50,7 +50,7 @@ npm run dev
 
 ```sh
 cd licenses/
-python license-aggregator.py > ../webapp/src/license.md
+python license_aggregator.py > ../webapp/src/license.md
 python license_aggregator.py > out.md
 cat header.md out.md > x.md
 pandoc out2.md --pdf-engine=xelatex -o ../webapp/public/license.pdf
