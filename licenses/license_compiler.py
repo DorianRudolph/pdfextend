@@ -157,7 +157,6 @@ class LicenseCondition:
                 x
         expr = ''.join([quote(x) for x in f'({expr})'.replace(
             ')', ' ) ').replace('(', ' ( ').split()])
-        print(expr)
         if expr[0] != '(':
             expr = '"' + expr
         if expr[-1] != ')':
@@ -182,7 +181,7 @@ class LicenseCondition:
         raise RuntimeError('unreachable')
 
 
-def license_heuristic(text, file_name):
+def license_heuristic(file_name, text):
     t = normalize_text(text)
     lics = set()
     for (lic, cc) in MATCHES.items():
@@ -193,7 +192,7 @@ def license_heuristic(text, file_name):
         print(f'\n\nWARN UNKNOWN {file_name}\n{text}\n\n')
     if len(lics) > 1:
         print(f'\n\nWARN INDETERMINATE {file_name}\n{text}\n\n')
-    return lics
+    return list(lics)
 
 
 def multi_glob_read(globs):
@@ -227,11 +226,11 @@ class Package:
                 if n == l:
                     found.append((n, t))
             if len(found) > 1:
-                print(f'\n\nWARN MULTIPLE {name} {license} {l}\n{found}\n\n')
+                print(f'\n\nWARN MULTIPLE {name} {license} {l}\n{found}\n')
             self.include.extend(found)
 
 
-def rust(path):
+def rust(path, ignore=[]):
     json_data = subprocess.check_output('cargo license -j'.split(), cwd=path)
     data = json.loads(json_data)
     packages = []
@@ -239,20 +238,26 @@ def rust(path):
         name = package['name']
         version = package['version']
         license = package['license']
-        print(f"{name}-{version}: {license} | {LicenseCondition.parse(license)}")
-        license_files = {}
-        base = f'{cargo_path}{name}-{version}/'
+        namever = f"{name}-{version}"
+        if namever in ignore or name in ignore:
+            continue
+        cond = LicenseCondition.parse(license)
+        print(f"{namever}: {cond}")
+        base = f'{cargo_path}{namever}/'
         license_files = []
         include = []
         for n, t in multi_glob_read([f'{base}/LICENSE*', f'{base}/license*', f'{base}/COPYING*', f'{base}/LICENSES/*']):
             if 'third-party' in strip_file_name(n).lower():
                 include.append((n, t))
             else:
-                license_files.append((license_heuristic(n, t), n, t))
+                h = license_heuristic(n, t)
+                if len(h) == 1:
+                    license_files.append((h[0], n, t))
         for n, t in multi_glob_read([f'{base}/NOTICE*', f'{base}/notice*']):
-            include.append(n, t)
-        packages.append(Package(
-            f'{name}-{version}', LicenseCondition.parse(license), license_files, include))
+            include.append((n, t))
+
+        pack = Package(namever, cond, license_files, include)
+        packages.append(pack)
 
         # ok = [l for l in license_names if os.path.exists(
         #     f'{cargo_path}{name}-{version}/{l}')]
@@ -261,7 +266,8 @@ def rust(path):
 
 def main():
     # node('../webapp')
-    rust('../pdfextend-web')
+    rust('../pdfextend-web', {'pdfextend-lib',
+         'pdfextend-web', 'iter_tools-0.1.4'})
 
 
 if __name__ == '__main__':
