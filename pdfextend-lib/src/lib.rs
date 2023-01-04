@@ -321,8 +321,10 @@ pub fn extend_pdf(
             .pages()
             .create_page_at_end(PdfPagePaperSize::Custom(bounds.width(), bounds.height()))?;
         let new_bounds = new_page.boundaries().bounding()?.bounds;
-        let grid = make_grid(doc, None, &new_bounds, &params)?;
-        new_page.objects_mut().add_path_object(grid)?;
+        if params.grid.is_some() {
+            let grid = make_grid(doc, None, &new_bounds, &params)?;
+            new_page.objects_mut().add_path_object(grid)?;
+        }
     }
 
     Ok(())
