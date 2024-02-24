@@ -8,10 +8,8 @@ description = "Implementation of PDFextend, a tool to add margins with grid line
 repository = "https://github.com/DorianRudolph/pdfextend"
 
 [dependencies]
-clap = { version = "4.0.29", features = ["derive"] }
-# pdfium-render = { git = "https://github.com/WhiteboardCX/pdfium-render", branch = "fix-wasm-table" }
-# pdfium-render = { git = "https://github.com/ajrcarey/pdfium-render", branch = "master" }
-pdfium-render = "0.7.27"
+clap = { version = "4.5.1", features = ["derive"] }
+pdfium-render = "0.8.17"
 
 [profile.release]
 lto = true

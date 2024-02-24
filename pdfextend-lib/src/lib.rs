@@ -32,6 +32,7 @@ pub enum LineType {
     Lines,
     Squares,
     Dots,
+    DotsOld,
 }
 
 #[derive(Copy, Clone, Debug)]
@@ -187,7 +188,7 @@ fn make_grid<'a>(
     path.set_line_cap(PdfPageObjectLineCap::Butt)?;
 
     let grid = params.grid.unwrap();
-    Ok(if grid == LineType::Dots {
+    Ok(if grid == LineType::DotsOld {
         let mut path = PdfPagePathObject::new(
             doc,
             rect_outer.left,
@@ -212,6 +213,47 @@ fn make_grid<'a>(
                     }
                 }
                 x += spacing;
+            }
+            y -= spacing;
+        }
+        path
+    } else if grid == LineType::Dots {
+        let mut path = PdfPagePathObject::new(
+            doc,
+            rect_outer.left,
+            rect_outer.top,
+            Some(params.color),
+            Some(width),
+            None,
+        )?;
+        path.set_line_cap(PdfPageObjectLineCap::Round)?;
+        path.set_dash_array(&[PdfPoints::ZERO, params.spacing], PdfPoints::ZERO)?;
+
+        let mut draw_line = |x1, y1, x2, y2| {
+            path.move_to(x1, y1)?;
+            path.line_to(x2, y2)
+        };
+
+        let mut y = rect_outer.top - width / 2.;
+        let x = rect_outer.left + width / 2.;
+
+        let rir = rect_inner.unwrap_or(&PdfRect::zero()).right;
+        let mut offset = -PdfPoints::new((rir - x).value % spacing.value);
+        if offset < width / 2. {
+            offset += spacing;
+        }
+
+        while y > rect_outer.bottom {
+            match rect_inner {
+                Some(rect_inner) if y <= rect_inner.top && y >= rect_inner.bottom => {
+                    if rect_outer.left < rect_inner.left {
+                        draw_line(x, y, rect_inner.left, y)?;
+                    }
+                    if rect_outer.right > rect_inner.right {
+                        draw_line(rect_inner.right + offset, y, rect_outer.right, y)?;
+                    }
+                }
+                _ => draw_line(x, y, rect_outer.right, y)?,
             }
             y -= spacing;
         }
@@ -318,7 +360,7 @@ pub fn extend_pdf(
             .bounding()?
             .bounds;
         let mut new_page = doc
-            .pages()
+            .pages_mut()
             .create_page_at_end(PdfPagePaperSize::Custom(bounds.width(), bounds.height()))?;
         let new_bounds = new_page.boundaries().bounding()?.bounds;
         if params.grid.is_some() {
