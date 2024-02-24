@@ -12,11 +12,17 @@ crate-type = ["cdylib"]
 
 [dependencies]
 pdfextend-lib = { path = "../pdfextend-lib" }
-console_log = "0.2.0"
-log = "0.4.17"
-wasm-bindgen = { version = "0.2.83", features = ["enable-interning"] }
-wasm-bindgen-futures = "0.4.33"
-web-sys = { version = "0.3.60", features = ["TextDecoder", "ImageData", "Window", "Response", "Blob"] }
+console_log = "1.0.0"
+log = "0.4.20"
+wasm-bindgen = { version = "0.2.91", features = ["enable-interning"] }
+wasm-bindgen-futures = "0.4.41"
+web-sys = { version = "0.3.68", features = [
+    "TextDecoder",
+    "ImageData",
+    "Window",
+    "Response",
+    "Blob",
+] }
 
 [profile.release]
 lto = true

@@ -54,14 +54,14 @@ pub async fn extend_pdf(cmd: String, blob: Blob) -> Result<PdfExtendOut, JsValue
     let page1 = doc.pages().first().map_err(err_to_str)?;
     let (w, h) = (page1.width().value, page1.height().value);
     let scale = (1e6 / (w * h)).sqrt(); // 1 Mpx
-    let (w, h) = ((w * scale) as u16, (h * scale) as u16);
+    let (w, h) = ((w * scale) as i32, (h * scale) as i32);
     let preview = page1
         .render_with_config(
             &PdfRenderConfig::new()
                 .set_target_size(w, h)
                 .render_form_data(true)
-                .highlight_text_form_fields(PdfColor::SOLID_YELLOW.with_alpha(128))
-                .highlight_checkbox_form_fields(PdfColor::SOLID_BLUE.with_alpha(128)),
+                .highlight_text_form_fields(PdfColor::YELLOW.with_alpha(128))
+                .highlight_checkbox_form_fields(PdfColor::BLUE.with_alpha(128)),
         )
         .map_err(err_to_str)?
         .as_image_data()?;
@@ -137,8 +137,8 @@ pub async fn log_page_metrics_to_console(url: String) {
 pub async fn get_image_data_for_page(
     url: String,
     index: PdfPageIndex,
-    width: u16,
-    height: u16,
+    width: i32,
+    height: i32,
 ) -> ImageData {
     Pdfium::new(Pdfium::bind_to_system_library().unwrap())
         .load_pdf_from_fetch(url, None)
@@ -151,8 +151,8 @@ pub async fn get_image_data_for_page(
             &PdfRenderConfig::new()
                 .set_target_size(width, height)
                 .render_form_data(true)
-                .highlight_text_form_fields(PdfColor::SOLID_YELLOW.with_alpha(128))
-                .highlight_checkbox_form_fields(PdfColor::SOLID_BLUE.with_alpha(128)),
+                .highlight_text_form_fields(PdfColor::YELLOW.with_alpha(128))
+                .highlight_checkbox_form_fields(PdfColor::BLUE.with_alpha(128)),
         )
         .unwrap()
         .as_image_data()

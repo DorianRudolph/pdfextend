@@ -9,7 +9,8 @@ repository = "https://github.com/DorianRudolph/pdfextend"
 
 [dependencies]
 clap = { version = "4.5.1", features = ["derive"] }
-pdfium-render = "0.8.17"
+# pdfium-render = "0.8.18"
+pdfium-render = { git = "https://github.com/ajrcarey/pdfium-render", rev = "8409cd9bdab934dd3da76526c54f4791a03a55f2" }
 
 [profile.release]
 lto = true

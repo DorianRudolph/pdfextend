@@ -10,7 +10,7 @@ repository = "https://github.com/DorianRudolph/pdfextend"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-indicatif = "0.17.2"
+indicatif = "0.17.8"
 pdfextend-lib = { path = "../pdfextend-lib" }
 
 [profile.release]
