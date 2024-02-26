@@ -29,7 +29,7 @@ def eprint(*args, **kwargs):
 
 
 cargo_path = os.path.expanduser(
-    '~/.cargo/registry/src/github.com-1ecc6299db9ec823/')
+    '~/.cargo/registry/src/index.crates.io-6f17d22bba15001f/')
 
 license_names = ['LICENSE', 'LICENSE-MIT',
                  'LICENSE-APACHE', 'LICENSE.md', 'LICENSE-BSD-3-Clause']
@@ -196,6 +196,9 @@ class LicenseCondition:
             return set()
         raise RuntimeError('unreachable')
 
+# print(l:=LicenseCondition.parse('0BSD OR Apache-2.0 OR MIT'))
+# exit()
+
 
 def license_heuristic(file_name, text):
     t = normalize_text(text)
@@ -334,8 +337,9 @@ def main():
         print(p)
     print('## Cargo packages ')
     print_package('pdfium-render (Apache-2.0)', read_file('LICENSE-APACHE'))
+    print_package('zune-inflate-0.2.54 (Apache-2.0)', read_file("LICENSE-zune-inflate"))
     for p in rust('../pdfextend-web', ignore={'pdfextend-lib', 'pdfium-render',
-                                              'pdfextend-web', 'iter_tools-0.1.4'}):
+                                              'pdfextend-web', 'iter_tools-0.4.0', 'zune-inflate-0.2.54'}):
         print(p)
 
 
